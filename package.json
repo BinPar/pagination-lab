@@ -9,7 +9,7 @@
     "build": "tsc",
     "test": "jest",
     "test-dev": "NODE_ENV=development npx jest --watchAll",
-    "dev": "NODE_ENV=development ts-node-dev --debug --respawn --transpileOnly ./src/index.ts",
+    "dev": "NODE_ENV=development ts-node-dev --debug --respawn --transpileOnly ./src/server.ts",
     "start": "node ./dist/index.js",
     "lint": "npx eslint --config ./.eslintrc src/**/*.ts"
   },
@@ -32,6 +32,7 @@
     "typescript": "^3.5.3"
   },
   "devDependencies": {
+    "@types/live-server": "^1.2.0",
     "@types/node": "^12.6.8",
     "@typescript-eslint/eslint-plugin": "^1.11.0",
     "@typescript-eslint/parser": "^1.11.0",
