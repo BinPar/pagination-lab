@@ -39,13 +39,21 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
   const pagesDict: PageNumberMark[] = [];
   const pagesPerColumn: string[] = [];
 
+  let firstItem = true;
   document.body
     .querySelectorAll('body > .chapterWrapper [data-page]')
     .forEach((item): void => {
       const element = item as HTMLElement;
+      const rects = element.getClientRects();
+      let left = rects[0].x + document.body.scrollLeft;
+      if (firstItem) {
+        firstItem = false;
+        left = 0;
+      }
+
       if (element.dataset.page) {
         pagesDict.push({
-          left: element.getClientRects()[0].x + document.body.scrollLeft,
+          left,
           page: element.dataset.page,
         });
       }
@@ -62,7 +70,7 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
   for (let column = 1; column <= totalColumns; column++) {
     const maxLeft = column * totalColumnWidth;
     if (pagesDict.length && pagesDict[0].left < maxLeft) {
-      currentPage = pagesDict[0].page;      
+      currentPage = pagesDict[0].page;
       while (pagesDict.length && pagesDict[0].left < maxLeft) {
         if (!pageSet && newSettings.currentPage === pagesDict[0].page) {
           if (currentPage === newSettings.currentPage) {
@@ -73,7 +81,7 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
         pagesDict.shift();
       }
     }
-    pagesPerColumn.push(currentPage);    
+    pagesPerColumn.push(currentPage);
     const columnDiv = document.createElement('div');
     columnDiv.className = 'label';
     const label = document.createElement('p');

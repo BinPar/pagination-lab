@@ -62,8 +62,22 @@ body > .labelsForEveryPage > .label p {
 body > .buttons {
   position: fixed;
   top: 0px;
-  right: 2px;
+  right: 0px;
   user-select: none;
+}
+body > .buttons button {
+  float: left;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  border: none;
+  margin-top: 0px;
+  margin: 0;
+  padding: 0;
+  background-color: black;
+  color: white;
+  font-weight: 300;
+  outline: none;
 }
 
 @font-face {

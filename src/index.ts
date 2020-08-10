@@ -38,31 +38,38 @@ const onWindowLoad = (): void => {
     );
     recalculate();
   };
-  increaseFontButton?.addEventListener('click', (): void => {
+  increaseFontButton?.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();
     if (settings.currentFontSize < 50) {
       settings.currentFontSize += 2;
       updateFontInfo();
     }
   });
-  decreaseFontButton?.addEventListener('click', (): void => {
+  decreaseFontButton?.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();
     if (settings.currentFontSize > 8) {
       settings.currentFontSize -= 2;
       updateFontInfo();
     }
   });
+  document.body.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();    
+  });
   recalculate();
   setTimeout(recalculate, 1000);
   document.body.addEventListener('scroll', onBodyScroll);
-
-  const selectFont = document.body.querySelector(
-    'body > .buttons > .selectTypography',
-  ) as HTMLSelectElement;
   
-  selectFont?.addEventListener('click', (): void => {
-    document.body.className = `viewer epub ${selectFont.value}`;
-    recalculate();
-    setTimeout(recalculate, 1000);
+  document.body.querySelectorAll<HTMLButtonElement>(
+    'body > .buttons > .selectTypography',
+  ).forEach((button): void => {
+    button?.addEventListener('click', (ev: Event): void => {
+      ev.preventDefault();
+      document.body.className = `viewer epub ${button.value}`;
+      recalculate();
+      setTimeout(recalculate, 1000);
+    });
   });
+  
 };
 
 window.addEventListener('load', onWindowLoad);
