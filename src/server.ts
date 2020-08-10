@@ -5,7 +5,10 @@ const params: liveServer.LiveServerParams = {
   root: './web',
   open: false,
   wait: 0,
-  mount: [['/js', './dist']],
+  mount: [
+    ['/js', './dist'],
+    ['/src', './src'],
+  ],
   logLevel: 2,
   file: 'index.html',
 };
