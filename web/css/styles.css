@@ -12,6 +12,14 @@ body {
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
     font-size: var(--fontSize, 18px);
+    transition-property: transform;
+    transition-duration: 0.5s;
+    transition-timing-function: cubic-bezier();
+    /* transform: scale(1) translate(0, 0);*/
+}
+
+body.zoom {
+  transform: scale(1.1) translate(0, 2em);
 }
 
 body > .chapterWrapper {
