@@ -1,3 +1,139 @@
 h1 {
   color: red;
 }
+@font-face {
+  font-family: 'American Typewriter';
+  src: url('../static/fonts/prh-fonts/obfuscate-AmericanTypewriter-Bold.ttf');
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'American Typewriter';
+  src: url('../static/fonts/prh-fonts/obfuscate-AmericanTypewriter-Condensed-Bold.ttf');
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'American Typewriter';
+  src: url('../static/fonts/prh-fonts/obfuscate-AmericanTypewriter-Condensed-Light.ttf');
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'American Typewriter';
+  src: url('../static/fonts/prh-fonts/obfuscate-AmericanTypewriter-Condensed.ttf');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'American Typewriter';
+  src: url('../static/fonts/prh-fonts/obfuscate-AmericanTypewriter-Light.ttf');
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'American Typewriter';
+  src: url('../static/fonts/prh-fonts/obfuscate-AmericanTypewriter-Semibold.ttf');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'American Typewriter';
+  src: url('../static/fonts/prh-fonts/obfuscate-AmericanTypewriter.ttf');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Baskerville';
+  src: url('../static/fonts/prh-fonts/obfuscate-Baskerville-Bold-Italic.ttf');
+  font-weight: 800;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Baskerville';
+  src: url('../static/fonts/prh-fonts/obfuscate-Baskerville-Bold.ttf');
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Baskerville';
+  src: url('../static/fonts/prh-fonts/obfuscate-Baskerville-Italic.ttf');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Baskerville';
+  src: url('../static/fonts/prh-fonts/obfuscate-Baskerville-Italic.ttf');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Baskerville';
+  src: url('../static/fonts/prh-fonts/obfuscate-Baskerville-Italic.ttf');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Baskerville';
+  src: url('../static/fonts/prh-fonts/obfuscate-Baskerville-Semibold-Italic.ttf');
+  font-weight: 600;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Baskerville';
+  src: url('../static/fonts/prh-fonts/obfuscate-Baskerville-Semibold.ttf');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Baskerville';
+  src: url('../static/fonts/prh-fonts/obfuscate-Baskerville.ttf');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helvetica';
+  src: url('../static/fonts/prh-fonts/obfuscate-Helvetica-Bold-Oblique.ttf');
+  font-weight: 800;
+  font-style: oblique;
+}
+@font-face {
+  font-family: 'Helvetica';
+  src: url('../static/fonts/prh-fonts/obfuscate-Helvetica-Bold.ttf');
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helvetica';
+  src: url('../static/fonts/prh-fonts/obfuscate-Helvetica-Light-Oblique.ttf');
+  font-weight: 200;
+  font-style: oblique;
+}
+@font-face {
+  font-family: 'Helvetica';
+  src: url('../static/fonts/prh-fonts/obfuscate-Helvetica-Light-Oblique.ttf');
+  font-weight: 200;
+  font-style: oblique;
+}
+@font-face {
+  font-family: 'Helvetica';
+  src: url('../static/fonts/prh-fonts/obfuscate-Helvetica-Oblique.ttf');
+  font-weight: 400;
+  font-style: oblique;
+}
+@font-face {
+  font-family: 'Helvetica';
+  src: url('../static/fonts/prh-fonts/obfuscate-Helvetica.ttf');
+  font-weight: 400;
+  font-style: normal;
+}
+
+.viewer.epub.baskerville-enc .chapterWrapper {
+  font-family: 'Baskerville';
+}
+.viewer.epub.americanTypewriter-enc .chapterWrapper {
+  font-family: 'American Typewriter';
+}
+.viewer.epub.helvetica-enc .chapterWrapper {
+  font-family: 'Helvetica';
+}
