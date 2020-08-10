@@ -5,13 +5,19 @@
     "Paginación",
     "Pic",
     "Picón",
+    "Readium",
     "binpar",
     "camelcase",
+    "crossorigin",
     "downlevel",
+    "epub",
     "n",
     "plusplus",
     "respawn",
     "sourcemap",
-    "tslib"
+    "stylesheet",
+    "stylesheets",
+    "tslib",
+    "unstyled"
   ]
 }

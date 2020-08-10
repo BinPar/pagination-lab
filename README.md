@@ -13,3 +13,6 @@ Pagination Laboratory for BiBooks Apps
 - in visual studio code run the command `tsc: watch`
 - open [http://localhost:3000](http://localhost:3000)
 
+## Used Readium as CSS Reset
+
+Cloned from the [Readium-css](https://github.com/readium/readium-css) repository.
