@@ -59,6 +59,11 @@ body > .labelsForEveryPage > .label p {
   line-height: 3em;
 }
 
+body > .buttons {
+  position: fixed;
+  top: 0px;
+  right: 2px;
+}
 
 @font-face {
   font-family: 'American Typewriter';
