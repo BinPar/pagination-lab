@@ -3,6 +3,7 @@ body {
   margin: 0;
   overflow-y: hidden;
 }
+
 .chapterWrapper {
   column-width: 20em; 
   margin: 2em;   
