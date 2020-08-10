@@ -1,6 +1,9 @@
 import PageNumberMark from './model/PageNumberMark';
+import Settings from './model/Settings';
 
-const recalculateColumnConfig = (currentFontSize: number): void => {
+const recalculateColumnConfig = (settings: Settings): Settings => {
+  const { currentFontSize } = settings;
+  const newSettings = { ...settings };
   const labelsContainer = document.body.querySelector(
     'body > .labelsForEveryPage',
   );
@@ -16,7 +19,8 @@ const recalculateColumnConfig = (currentFontSize: number): void => {
   document.documentElement.style.setProperty('--windowWidth', `${0}px`);
   document.documentElement.style.setProperty('--totalColumnWidth', `0`);
   const columnWidth =
-    (document.getElementById('totalColumnWidthCalculator')?.clientWidth || 1) + currentFontSize * 2;
+    (document.getElementById('totalColumnWidthCalculator')?.clientWidth || 1) +
+    currentFontSize * 2;
   const columnsInPageWidth = Math.floor(windowWidth / columnWidth);
   const totalColumnWidth = windowWidth / columnsInPageWidth;
   document.documentElement.style.setProperty(
@@ -33,14 +37,15 @@ const recalculateColumnConfig = (currentFontSize: number): void => {
   );
 
   const pagesDict: PageNumberMark[] = [];
-  
+  const pagesPerColumn: string[] = [];
+
   document.body
     .querySelectorAll('body > .chapterWrapper [data-page]')
     .forEach((item): void => {
       const element = item as HTMLElement;
       if (element.dataset.page) {
         pagesDict.push({
-          left: element.getClientRects()[0].x,
+          left: element.getClientRects()[0].x + document.body.scrollLeft,
           page: element.dataset.page,
         });
       }
@@ -48,14 +53,27 @@ const recalculateColumnConfig = (currentFontSize: number): void => {
 
   let currentPage = pagesDict.length ? pagesDict[0].page : '';
 
+  if (newSettings.currentPage === '') {
+    newSettings.currentPage = currentPage;
+  }
+
+  let pageSet = false;
+  let setScrollTo = document.body.scrollLeft;
   for (let column = 1; column <= totalColumns; column++) {
     const maxLeft = column * totalColumnWidth;
     if (pagesDict.length && pagesDict[0].left < maxLeft) {
-      currentPage =pagesDict[0].page;
+      currentPage = pagesDict[0].page;      
       while (pagesDict.length && pagesDict[0].left < maxLeft) {
-        pagesDict.shift(); 
+        if (!pageSet && newSettings.currentPage === pagesDict[0].page) {
+          if (currentPage === newSettings.currentPage) {
+            pageSet = true;
+          }
+          setScrollTo = maxLeft - totalColumnWidth;
+        }
+        pagesDict.shift();
       }
     }
+    pagesPerColumn.push(currentPage);    
     const columnDiv = document.createElement('div');
     columnDiv.className = 'label';
     const label = document.createElement('p');
@@ -63,6 +81,11 @@ const recalculateColumnConfig = (currentFontSize: number): void => {
     columnDiv.appendChild(label);
     labelsContainer?.appendChild(columnDiv);
   }
+  document.body.scrollLeft = setScrollTo;
+  newSettings.columnWidth = totalColumnWidth;
+  newSettings.totalColumns = totalColumns;
+  newSettings.pagesPerColumn = pagesPerColumn;
+  return newSettings;
 };
 
 export default recalculateColumnConfig;

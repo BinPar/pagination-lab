@@ -1,11 +1,29 @@
 import recalculateColumnConfig from './recalculateColumnConfig';
+import Settings from './model/Settings';
 
-let currentFontSize = 18;
+let settings: Settings =  {
+  currentFontSize: 18,
+  columnWidth: 0,
+  totalColumns: 0,
+  currentPage: '',
+  pagesPerColumn: [],
+}
+
+const recalculate = (): void => {
+  settings = recalculateColumnConfig(settings);
+} 
+
+const onBodyScroll = (): void => {
+  const currentColumn = Math.round(document.body.scrollLeft / settings.columnWidth);
+  if (currentColumn < settings.pagesPerColumn.length) {
+    settings.currentPage = settings.pagesPerColumn[currentColumn];
+  }
+}
 
 const onWindowLoad = (): void => {
   document.documentElement.style.setProperty(
     '--fontSize',
-    `${currentFontSize}px`,
+    `${settings.currentFontSize}px`,
   );
   const increaseFontButton = document.body.querySelector(
     'body > .buttons > .increaseFontButton',
@@ -16,27 +34,36 @@ const onWindowLoad = (): void => {
   const updateFontInfo = (): void => {
     document.documentElement.style.setProperty(
       '--fontSize',
-      `${currentFontSize}px`,
+      `${settings.currentFontSize}px`,
     );
-    recalculateColumnConfig(currentFontSize);
+    recalculate();
   };
   increaseFontButton?.addEventListener('click', (): void => {
-    if (currentFontSize < 100) {
-      currentFontSize += 2;
+    if (settings.currentFontSize < 50) {
+      settings.currentFontSize += 2;
       updateFontInfo();
     }
   });
   decreaseFontButton?.addEventListener('click', (): void => {
-    if (currentFontSize > 8) {
-      currentFontSize -= 2;
+    if (settings.currentFontSize > 8) {
+      settings.currentFontSize -= 2;
       updateFontInfo();
     }
   });
-  recalculateColumnConfig(currentFontSize);
-  setTimeout((): void => recalculateColumnConfig(currentFontSize), 1000);
+  recalculate();
+  setTimeout(recalculate, 1000);
+  document.body.addEventListener('scroll', onBodyScroll);
+
+  const selectFont = document.body.querySelector(
+    'body > .buttons > .selectTypography',
+  ) as HTMLSelectElement;
+  
+  selectFont?.addEventListener('click', (): void => {
+    document.body.className = `viewer epub ${selectFont.value}`;
+    recalculate();
+    setTimeout(recalculate, 1000);
+  });
 };
 
 window.addEventListener('load', onWindowLoad);
-window.addEventListener('resize', (): void =>
-  recalculateColumnConfig(currentFontSize),
-);
+window.addEventListener('resize', recalculate);

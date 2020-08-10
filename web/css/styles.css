@@ -63,6 +63,7 @@ body > .buttons {
   position: fixed;
   top: 0px;
   right: 2px;
+  user-select: none;
 }
 
 @font-face {
