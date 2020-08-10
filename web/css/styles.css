@@ -21,13 +21,14 @@ body {
   column-rule-style: solid;
   column-rule-width: 1px;
   column-gap: 4em;
-  height: calc(var(--vh, 100vh) - 4em);
+  height: calc(var(--vh, 100vh) - 6em);
 }
 
 .chapterWrapper p {
-  scroll-snap-align: center;
+  scroll-snap-align: center; /* Fix with labels */
 }
 
+/* Fix with labels */
 .chapterWrapperMargin {
   float: right;
   width: 4em;
