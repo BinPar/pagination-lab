@@ -94,7 +94,7 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\nexports.__esModule = true;\nvar log = __webpack_require__(/*! loglevel */ \"./node_modules/loglevel/lib/loglevel.js\");\nvar onWindowLoad = function () {\n    // eslint-disable-next-line no-console\n    log.warn('Pagination initialized!');\n    throw new Error('err');\n};\nwindow.addEventListener(\"load\", onWindowLoad);\n\n\n//# sourceURL=webpack:///./dist/index.js?");
+eval("\nexports.__esModule = true;\nvar log = __webpack_require__(/*! loglevel */ \"./node_modules/loglevel/lib/loglevel.js\");\nvar onWindowLoad = function () {\n    // eslint-disable-next-line no-console\n    log.warn('Pagination initialized!');\n    var vh = window.innerHeight;\n    document.documentElement.style.setProperty('--vh', vh + \"px\");\n    var chapterWidth = document.body.scrollWidth;\n    document.documentElement.style.setProperty('--chapterWidth', chapterWidth + \"px\");\n};\nwindow.addEventListener(\"load\", onWindowLoad);\n\n\n//# sourceURL=webpack:///./dist/index.js?");
 
 /***/ }),
 
