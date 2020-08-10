@@ -5,4 +5,6 @@ const onWindowLoad = (): void => {
   log.warn('Pagination initialized!');
 }
 
+throw new Error('err');
+
 window.addEventListener("load", onWindowLoad);

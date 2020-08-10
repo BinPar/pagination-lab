@@ -1,3 +1,4 @@
+
 @font-face {
   font-family: 'American Typewriter';
   src: url('/fonts/prh-fonts/obfuscate-AmericanTypewriter-Bold.ttf');
@@ -128,6 +129,7 @@
 .viewer.epub.baskerville-enc .chapterWrapper {
   font-family: 'Baskerville';
 }
+
 .viewer.epub.americanTypewriter-enc .chapterWrapper {
   font-family: 'American Typewriter';
 }

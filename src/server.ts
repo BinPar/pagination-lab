@@ -6,7 +6,6 @@ const params: liveServer.LiveServerParams = {
   open: false,
   wait: 0,
   mount: [
-    ['/js', './dist'],
     ['/src', './src'],
   ],
   logLevel: 2,
