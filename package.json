@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BinPar/ts-node-boilerplate.git"
+    "url": "git+https://github.com/BinPar/pagination-lab.git"
   },
   "keywords": [
     "ts-node-boilerplate",
