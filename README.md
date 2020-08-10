@@ -1,3 +1,3 @@
-# Node Boilerplate
+# Pagination Lab
 
-Node Boilerplate from BinPar TypeScript Projects
+Pagination Laboratory for BiBooks Apps

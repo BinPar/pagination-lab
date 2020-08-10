@@ -1,7 +1,7 @@
 {
-  "name": "ts-node-boilerplate",
+  "name": "pagination-lab",
   "version": "0.3.19",
-  "description": "Node Boilerplate from BinPar TypeScript Projects",
+  "description": "Pagination Laboratory for BiBooks Apps",
   "engines": {
     "node": ">=10"
   },
@@ -28,6 +28,7 @@
   "homepage": "https://binpar.com",
   "dependencies": {
     "@types/jest": "^25.1.1",
+    "live-server": "^1.2.1",
     "typescript": "^3.5.3"
   },
   "devDependencies": {
