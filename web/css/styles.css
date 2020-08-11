@@ -16,7 +16,7 @@ body {
 
 body > .zoomPanel {
   transition-property: transform;
-  transition-duration: 0.5s;
+  transition-duration: var(--transitionDuration, '0');
   transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.2);
   transform: translateX(var(--horizontalScrollFix, 0)) scale(0.75);
 }
@@ -40,7 +40,7 @@ body > .zoomPanel > .chapterWrapper {
 body > .zoomPanel > .chapterWrapper > .additionalPage {
   height: 100%;
   width: 100%;
-  background-color: #ededed;
+  background-color: #fafafa;
   clear: both;
 }
 
@@ -75,7 +75,6 @@ body > .pageSnaps > .scrollSnap {
   height: 0px;
   position: absolute;
   top: 0px;
-  scroll-snap-align: start;
 }
 
 body > .zoomPanel > .labelsForEveryPage > .label {

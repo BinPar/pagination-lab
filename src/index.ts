@@ -8,6 +8,7 @@ let settings: Settings = {
   currentPage: '',
   pagesPerColumn: [],
   readMode: true,
+  animateEnabled: true,
 };
 
 const recalculate = (): void => {
@@ -28,7 +29,9 @@ const onWindowLoad = (): void => {
     '--fontSize',
     `${settings.currentFontSize}px`,
   );
-  const zoomPanel = document.body.querySelector('body > .zoomPanel');
+  const zoomPanel = document.body.querySelector(
+    'body > .zoomPanel',
+  ) as HTMLDivElement;
   const buttonsPanel = document.body.querySelector('body > .buttons');
   const increaseFontButton = document.body.querySelector(
     'body > .buttons > .increaseFontButton',
@@ -61,16 +64,45 @@ const onWindowLoad = (): void => {
   });
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
-    settings.readMode = !settings.readMode;
-    if (zoomPanel && buttonsPanel) {
-      if (!settings.readMode) {
+    if (settings.animateEnabled) {      
+      settings.readMode = !settings.readMode;
+      if (zoomPanel && buttonsPanel) {
+        settings.animateEnabled = false;
         document.documentElement.style.setProperty(
-          '--horizontalScrollFix',          
-          `${(document.body.scrollLeft) * 0.25}px`,
-        );        
+          '--transitionDuration',
+          '0.5s',
+        );
+        let scrollFix = document.body.scrollLeft * 0.25;
+        if (settings.readMode) {
+          scrollFix = document.body.scrollLeft  * -0.33333;
+        }
+        
+        document.documentElement.style.setProperty(
+          '--horizontalScrollFix',
+          `${scrollFix}px`,
+        );
+        
+        setTimeout((): void => {
+          document.documentElement.style.setProperty(
+            '--transitionDuration',
+            '0s',
+          );
+          document.documentElement.style.setProperty(
+            '--horizontalScrollFix',
+            '0',
+          );
+          document.body.scrollBy(-1 * scrollFix, 0);
+          setTimeout((): void => {
+            document.documentElement.style.setProperty(
+              '--transitionDuration',
+              '0.5s',
+            );
+            settings.animateEnabled = true;
+          }, 0);            
+        }, 500);
+        zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
+        buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
       }
-      zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
-      buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
     }
   });
   recalculate();

@@ -5,4 +5,5 @@ export default interface Settings {
   columnWidth: number;
   pagesPerColumn: string[];
   readMode: boolean;
+  animateEnabled: boolean;
 }
