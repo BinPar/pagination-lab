@@ -137,6 +137,14 @@ body > .buttons button {
   font-weight: 800;
   font-style: normal;
 }
+
+@font-face {
+  font-family: 'Baskerville';
+  src: url('/fonts/prh-fonts/obfuscate-Baskerville-Bold.ttf');
+  font-weight: bold;
+  font-style: normal;
+}
+
 @font-face {
   font-family: 'Baskerville';
   src: url('/fonts/prh-fonts/obfuscate-Baskerville-Italic.ttf');
