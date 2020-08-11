@@ -5,10 +5,10 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
   const { currentFontSize } = settings;
   const newSettings = { ...settings };
   const labelsContainer = document.body.querySelector(
-    'body > .labelsForEveryPage',
+    'body > .zoomPanel > .labelsForEveryPage',
   );
   document.body
-    .querySelectorAll('body > .labelsForEveryPage > .label')
+    .querySelectorAll('body > .zoomPanel >.labelsForEveryPage > .label')
     .forEach((label): void => {
       label.remove();
     });
@@ -41,7 +41,7 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
 
   let firstItem = true;
   document.body
-    .querySelectorAll('body > .chapterWrapper [data-page]')
+    .querySelectorAll('body > .zoomPanel > .chapterWrapper [data-page]')
     .forEach((item): void => {
       const element = item as HTMLElement;
       const rects = element.getClientRects();

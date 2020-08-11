@@ -4,4 +4,5 @@ export default interface Settings {
   currentPage: string;
   columnWidth: number;
   pagesPerColumn: string[];
+  readMode: boolean;
 }
