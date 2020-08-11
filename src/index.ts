@@ -74,7 +74,7 @@ const onWindowLoad = (): void => {
         );
         let scrollFix = document.body.scrollLeft * 0.25;
         if (settings.readMode) {
-          scrollFix = document.body.scrollLeft  * -0.33333;
+          scrollFix = document.body.scrollLeft  * -(1/3);
         }
         
         document.documentElement.style.setProperty(

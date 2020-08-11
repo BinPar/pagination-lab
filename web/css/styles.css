@@ -22,7 +22,7 @@ body > .zoomPanel {
 }
 
 body > .zoomPanel.zoom {
-  transform: scale(1) translate(0, -1em);
+  transform: translateX(var(--horizontalScrollFix, 0)) translateY(-1em) scale(1);
 }
 
 body > .zoomPanel > .chapterWrapper {
