@@ -69,6 +69,11 @@ const onWindowLoad = (): void => {
       if (zoomPanel && buttonsPanel) {
         settings.animateEnabled = false;
         document.documentElement.style.setProperty(
+          '--viewerSnapType',
+          'none',
+        );
+
+        document.documentElement.style.setProperty(
           '--transitionDuration',
           '0.5s',
         );
@@ -98,6 +103,14 @@ const onWindowLoad = (): void => {
               '0.5s',
             );
             settings.animateEnabled = true;
+            document.documentElement.style.setProperty(
+              '--viewerSnapType',
+              'none',
+            );
+            document.documentElement.style.setProperty(
+              '--viewerSnapType',
+              'x mandatory',
+            );
           }, 0);            
         }, 500);
         zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
