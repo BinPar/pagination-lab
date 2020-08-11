@@ -97,7 +97,7 @@ const onWindowLoad = (): void => {
             '0',
           );
           document.body.scrollBy(-1 * scrollFix, 0);
-          setTimeout((): void => {            
+          setTimeout((): void => {
             document.documentElement.style.setProperty(
               '--transitionDuration',
               '0.5s',

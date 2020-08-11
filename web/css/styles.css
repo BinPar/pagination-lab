@@ -10,7 +10,7 @@ body {
     padding: 0;
     overflow-y: hidden;
     overflow-x: scroll;    
-    scroll-snap-type: var(--viewerSnapType, 'x mandatory');
+    scroll-snap-type: var(--viewerSnapType, x mandatory);
     font-size: var(--fontSize, 18px);
 }
 
@@ -70,9 +70,8 @@ body > .pageSnaps {
 }
 
 body > .pageSnaps > .scrollSnap {
-  background-color: red;
-  width: 4px;
-  height: 4px;
+  width: 1px;
+  height: 1px;
   position: absolute;
   top: 0px;
   scroll-snap-align: start;
@@ -130,6 +129,12 @@ body > .buttons button {
 }
 @font-face {
   font-family: 'American Typewriter';
+  src: url('/fonts/prh-fonts/obfuscate-AmericanTypewriter-Bold.ttf');
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'American Typewriter';
   src: url('/fonts/prh-fonts/obfuscate-AmericanTypewriter-Condensed-Bold.ttf');
   font-weight: 800;
   font-style: normal;
@@ -178,6 +183,13 @@ body > .buttons button {
 }
 @font-face {
   font-family: 'Baskerville';
+  src: url('/fonts/prh-fonts/obfuscate-Baskerville-Bold.ttf');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Baskerville';
   src: url('/fonts/prh-fonts/obfuscate-Baskerville-Italic.ttf');
   font-weight: 400;
   font-style: italic;
@@ -222,6 +234,12 @@ body > .buttons button {
   font-family: 'Helvetica';
   src: url('/fonts/prh-fonts/obfuscate-Helvetica-Bold.ttf');
   font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helvetica';
+  src: url('/fonts/prh-fonts/obfuscate-Helvetica-Bold.ttf');
+  font-weight: bold;
   font-style: normal;
 }
 @font-face {
