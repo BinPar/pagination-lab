@@ -7,11 +7,21 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
   const labelsContainer = document.body.querySelector(
     'body > .zoomPanel > .labelsForEveryPage',
   );
+  const pageSnapsContainer = document.body.querySelector(
+    'body > .pageSnaps',
+  );
   document.body
     .querySelectorAll('body > .zoomPanel >.labelsForEveryPage > .label')
     .forEach((label): void => {
       label.remove();
     });
+
+  document.body
+    .querySelectorAll('body > .pageSnaps > .scrollSnap')
+    .forEach((label): void => {
+      label.remove();
+    });
+    
   const windowWidth = window.innerWidth;
   const vh = window.innerHeight;
   document.documentElement.style.setProperty('--totalChapterWidth', '0');
@@ -69,7 +79,9 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
   let setScrollTo = document.body.scrollLeft;
   for (let column = 1; column <= totalColumns; column++) {
     const maxLeft = column * totalColumnWidth;
-    if (pagesDict.length && pagesDict[0].left < maxLeft) {
+    if (column === 1 || column > totalColumns - 10) {
+      currentPage = '';
+    } else if (pagesDict.length && pagesDict[0].left < maxLeft) {
       currentPage = pagesDict[0].page;
       while (pagesDict.length && pagesDict[0].left < maxLeft) {
         if (!pageSet && newSettings.currentPage === pagesDict[0].page) {
@@ -82,12 +94,20 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
       }
     }
     pagesPerColumn.push(currentPage);
+
     const columnDiv = document.createElement('div');
     columnDiv.className = 'label';
     const label = document.createElement('p');
     label.innerText = `${currentPage}`;
     columnDiv.appendChild(label);
     labelsContainer?.appendChild(columnDiv);
+    const isScrollSnap = (column - 2) % columnsInPageWidth === 0;
+    if (isScrollSnap && currentPage) {
+      const scrollSnapDiv = document.createElement('div');
+      scrollSnapDiv.className = 'scrollSnap';
+      scrollSnapDiv.style.left = `${(column - 1) * totalColumnWidth}px`;
+      pageSnapsContainer?.appendChild(scrollSnapDiv);
+    }
   }
   document.body.scrollLeft = setScrollTo;
   newSettings.columnWidth = totalColumnWidth;

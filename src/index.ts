@@ -63,6 +63,12 @@ const onWindowLoad = (): void => {
     ev.preventDefault();
     settings.readMode = !settings.readMode;
     if (zoomPanel && buttonsPanel) {
+      if (!settings.readMode) {
+        document.documentElement.style.setProperty(
+          '--horizontalScrollFix',          
+          `${(document.body.scrollLeft) * 0.25}px`,
+        );        
+      }
       zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
       buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
     }

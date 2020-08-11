@@ -17,8 +17,8 @@ body {
 body > .zoomPanel {
   transition-property: transform;
   transition-duration: 0.5s;
-  transition-timing-function: cubic-bezier();
-  transform: scale(0.75) translate(calc(0 + 2vw), -3em);
+  transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.2);
+  transform: translateX(var(--horizontalScrollFix, 0)) scale(0.75);
 }
 
 body > .zoomPanel.zoom {
@@ -28,12 +28,19 @@ body > .zoomPanel.zoom {
 body > .zoomPanel > .chapterWrapper {
   column-width: 20em; 
   padding: 2em;
-  column-rule: 1px solid #ddd;
+  column-rule: 1px solid #eee;
   column-rule-style: solid;
   column-rule-width: 1px;
   column-gap: 4em;
   height: calc(var(--vh, 100vh) - 2em);
   hyphens: auto;
+  clear: both;
+}
+
+body > .zoomPanel > .chapterWrapper > .additionalPage {
+  height: 100%;
+  width: 100%;
+  background-color: #ededed;
   clear: both;
 }
 
@@ -54,16 +61,32 @@ body > .zoomPanel > .labelsForEveryPage {
   overflow: visible;
 }
 
+body > .pageSnaps {
+  position: relative;
+  background-color: black;
+  height: 0px;
+  width: 20px;
+  float: left;
+}
+
+body > .pageSnaps > .scrollSnap {
+  background-color: red;
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  top: 0px;
+  scroll-snap-align: start;
+}
+
 body > .zoomPanel > .labelsForEveryPage > .label {
   position: relative;  
   width: var(--totalColumnWidth, 0);
   float: left;
   height: 2em;
-  /*scroll-snap-align: start;*/
 }
 
 body > .zoomPanel > .labelsForEveryPage > .label p {
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #eee;
   margin: 0 1em;
   text-align: center;
   font-weight: 600;
