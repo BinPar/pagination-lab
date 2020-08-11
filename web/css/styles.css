@@ -35,7 +35,7 @@ body > .chapterWrapper {
 }
 
 body > .chapterWrapper * {
-  max-width: calc(var(--totalColumnWidth, 0) - 4em);
+  max-width: calc(var(--totalColumnWidth, 0) - 2em);
 }
 
 body > .chapterWrapper > #totalColumnWidthCalculator {
