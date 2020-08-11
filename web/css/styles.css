@@ -71,8 +71,8 @@ body > .pageSnaps {
 
 body > .pageSnaps > .scrollSnap {
   background-color: red;
-  width: 0px;
-  height: 0px;
+  width: 4px;
+  height: 4px;
   position: absolute;
   top: 0px;
   scroll-snap-align: start;

@@ -28,17 +28,23 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
   document.documentElement.style.setProperty('--vh', `${vh}px`);
   document.documentElement.style.setProperty('--windowWidth', `${0}px`);
   document.documentElement.style.setProperty('--totalColumnWidth', `0`);
-  const columnWidth =
-    (document.getElementById('totalColumnWidthCalculator')?.clientWidth || 1) +
-    currentFontSize * 2;
+  let totalColumnWidthCalculator = document.getElementById('totalColumnWidthCalculator')?.clientWidth || 1;
+  if (!newSettings.readMode) {
+    totalColumnWidthCalculator *= 0.75;
+  }
+  const columnWidth = totalColumnWidthCalculator + currentFontSize * 2;
   const columnsInPageWidth = Math.floor(windowWidth / columnWidth);
   const totalColumnWidth = windowWidth / columnsInPageWidth;
   document.documentElement.style.setProperty(
     '--totalColumnWidth',
     `${totalColumnWidth}px`,
   );
+  let bodyWidth = window.document.body.scrollWidth;
+  if (!newSettings.readMode) {
+    bodyWidth /= 0.75;
+  }
   const totalColumns = Math.round(
-    window.document.body.scrollWidth / totalColumnWidth,
+    bodyWidth / totalColumnWidth,
   );
   const totalChapterWidth = totalColumnWidth * totalColumns;
   document.documentElement.style.setProperty(
@@ -105,7 +111,11 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
     if (isScrollSnap && currentPage) {
       const scrollSnapDiv = document.createElement('div');
       scrollSnapDiv.className = 'scrollSnap';
-      scrollSnapDiv.style.left = `${(column - 1) * totalColumnWidth}px`;
+      if (newSettings.readMode) {
+        scrollSnapDiv.style.left = `${(column - 1) * totalColumnWidth}px`;
+      } else {
+        scrollSnapDiv.style.left = `${(column - 1) * (totalColumnWidth * 0.75)}px`;
+      }
       pageSnapsContainer?.appendChild(scrollSnapDiv);
     }
   }
