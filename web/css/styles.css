@@ -18,7 +18,7 @@ body > .zoomPanel {
   transition-property: transform;
   transition-duration: 0.5s;
   transition-timing-function: cubic-bezier();
-  transform: scale(0.75) translate(2vw, -3em);
+  transform: scale(0.75) translate(calc(0 + 2vw), -3em);
 }
 
 body > .zoomPanel.zoom {
