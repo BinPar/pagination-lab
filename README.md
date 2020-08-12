@@ -19,7 +19,6 @@ In order to reset CSS styles I'm using the readium CSS reset file.
 
 Cloned from the [Readium-css](https://github.com/readium/readium-css) repository.
 
-
 ## Production version
 
 To get the production version use `npm run build` and get the `viewer.js` located in `web/js/viewer.js`.

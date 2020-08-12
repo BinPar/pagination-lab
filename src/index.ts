@@ -5,6 +5,7 @@ let settings: Settings = {
   currentFontSize: 18,
   columnWidth: 0,
   totalColumns: 0,
+  scrollFix: 0,
   currentPage: '',
   pagesPerColumn: [],
   readMode: true,
@@ -64,56 +65,31 @@ const onWindowLoad = (): void => {
   });
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
-    if (settings.animateEnabled) {      
+    if (settings.animateEnabled) {
       settings.readMode = !settings.readMode;
       if (zoomPanel && buttonsPanel) {
         settings.animateEnabled = false;
-        document.documentElement.style.setProperty(
-          '--viewerSnapType',
-          'none',
-        );
 
-        document.documentElement.style.setProperty(
-          '--transitionDuration',
-          '0.5s',
-        );
-        let scrollFix = document.body.scrollLeft * 0.25;
         if (settings.readMode) {
-          scrollFix = document.body.scrollLeft  * -(1/3);
-        }
-        
-        document.documentElement.style.setProperty(
-          '--horizontalScrollFix',
-          `${scrollFix}px`,
-        );
-        
-        setTimeout((): void => {
-          document.documentElement.style.setProperty(
-            '--transitionDuration',
-            '0s',
-          );
+          settings.scrollFix = 0;
           document.documentElement.style.setProperty(
             '--horizontalScrollFix',
             '0',
           );
-          document.body.scrollBy(-1 * scrollFix, 0);
-          setTimeout((): void => {
-            document.documentElement.style.setProperty(
-              '--transitionDuration',
-              '0.5s',
-            );
-            settings.animateEnabled = true;
-            document.documentElement.style.setProperty(
-              '--viewerSnapType',
-              'none',
-            );
-            recalculate();
-            document.documentElement.style.setProperty(
-              '--viewerSnapType',
-              'x mandatory',
-            );
-          }, 0);            
+        } else {
+          const scrollFix = document.body.scrollLeft * 0.25;
+          settings.scrollFix = scrollFix;
+          document.documentElement.style.setProperty(
+            '--horizontalScrollFix',
+            `${scrollFix}px`,
+          );
+        }
+
+        setTimeout((): void => {
+          settings.animateEnabled = true;
+          recalculate();
         }, 500);
+
         zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
         buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
       }

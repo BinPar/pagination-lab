@@ -6,4 +6,5 @@ export default interface Settings {
   pagesPerColumn: string[];
   readMode: boolean;
   animateEnabled: boolean;
+  scrollFix: number;
 }

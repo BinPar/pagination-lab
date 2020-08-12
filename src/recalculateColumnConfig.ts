@@ -7,9 +7,7 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
   const labelsContainer = document.body.querySelector(
     'body > .zoomPanel > .labelsForEveryPage',
   );
-  const pageSnapsContainer = document.body.querySelector(
-    'body > .pageSnaps',
-  );
+  const pageSnapsContainer = document.body.querySelector('body > .pageSnaps');
   document.body
     .querySelectorAll('body > .zoomPanel >.labelsForEveryPage > .label')
     .forEach((label): void => {
@@ -21,32 +19,34 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
     .forEach((label): void => {
       label.remove();
     });
-    
+
   const windowWidth = window.innerWidth;
   const vh = window.innerHeight;
   document.documentElement.style.setProperty('--totalChapterWidth', '0');
   document.documentElement.style.setProperty('--vh', `${vh}px`);
   document.documentElement.style.setProperty('--windowWidth', `${0}px`);
   document.documentElement.style.setProperty('--totalColumnWidth', `0`);
-  let totalColumnWidthCalculator = document.getElementById('totalColumnWidthCalculator')?.clientWidth || 1;
-  if (!newSettings.readMode) {
-    totalColumnWidthCalculator *= 0.75;
-  }
+  const totalColumnWidthCalculator =
+    document.getElementById('totalColumnWidthCalculator')?.clientWidth || 1;
   const columnWidth = totalColumnWidthCalculator + currentFontSize * 2;
   const columnsInPageWidth = Math.floor(windowWidth / columnWidth);
   const totalColumnWidth = windowWidth / columnsInPageWidth;
+
+  const bodyWidth =
+  document.body.scrollWidth * (settings.readMode ? 1 : 1 / 0.75) -
+  settings.scrollFix;
+
+  const totalColumns = Math.round(bodyWidth / totalColumnWidth);
+
   document.documentElement.style.setProperty(
     '--totalColumnWidth',
     `${totalColumnWidth}px`,
   );
-  let bodyWidth = window.document.body.scrollWidth;
-  if (!newSettings.readMode) {
-    bodyWidth /= 0.75;
-  }
-  const totalColumns = Math.round(
-    bodyWidth / totalColumnWidth,
-  );
+
   const totalChapterWidth = totalColumnWidth * totalColumns;
+
+  const scrollingElement = document.scrollingElement || document.body;
+
   document.documentElement.style.setProperty(
     '--totalChapterWidth',
     `${totalChapterWidth}px`,
@@ -55,17 +55,18 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
   const pagesDict: PageNumberMark[] = [];
   const pagesPerColumn: string[] = [];
 
-  let firstItem = true;
+  const { scrollLeft } = document.body;
   document.body
     .querySelectorAll('body > .zoomPanel > .chapterWrapper [data-page]')
     .forEach((item): void => {
       const element = item as HTMLElement;
       const rects = element.getClientRects();
-      let left = rects[0].x + document.body.scrollLeft;
-      if (firstItem) {
-        firstItem = false;
-        left = 0;
+      let left = rects[0].x;
+      if (!settings.readMode) {
+        left -= ((window.innerWidth / 2)*0.25);
+        left /= 0.75;
       }
+      console.log(scrollLeft);
 
       if (element.dataset.page) {
         pagesDict.push({
@@ -81,8 +82,10 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
     newSettings.currentPage = currentPage;
   }
 
+  console.log(pagesDict.map((c): number => Math.round(c.left)));
+
   let pageSet = false;
-  let setScrollTo = document.body.scrollLeft;
+  let setScrollTo = scrollingElement.scrollLeft;
   for (let column = 1; column <= totalColumns; column++) {
     const maxLeft = column * totalColumnWidth;
     if (column === 1 || column > totalColumns - 10) {
@@ -100,7 +103,6 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
       }
     }
     pagesPerColumn.push(currentPage);
-
     const columnDiv = document.createElement('div');
     columnDiv.className = 'label';
     const label = document.createElement('p');
@@ -114,12 +116,14 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
       if (newSettings.readMode) {
         scrollSnapDiv.style.left = `${(column - 1) * totalColumnWidth}px`;
       } else {
-        scrollSnapDiv.style.left = `${(column - 1) * (totalColumnWidth * 0.75)}px`;
+        scrollSnapDiv.style.left = `${
+          (column - 1) * (totalColumnWidth * 0.75)  + settings.scrollFix
+        }px`;
       }
       pageSnapsContainer?.appendChild(scrollSnapDiv);
     }
   }
-  document.body.scrollLeft = setScrollTo;
+  scrollingElement.scrollLeft = setScrollTo;
   newSettings.columnWidth = totalColumnWidth;
   newSettings.totalColumns = totalColumns;
   newSettings.pagesPerColumn = pagesPerColumn;
