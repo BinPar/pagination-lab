@@ -1,6 +1,16 @@
 import recalculateColumnConfig from './recalculateColumnConfig';
 import Settings from './model/Settings';
 
+interface FontFaceSet {
+  readonly ready: Promise<FontFaceSet>;   
+}
+
+declare global {
+  interface Document {
+    fonts: FontFaceSet;
+  }
+}
+
 let settings: Settings = {
   currentFontSize: 18,
   columnWidth: 0,
@@ -13,19 +23,34 @@ let settings: Settings = {
 };
 
 const recalculate = (): void => {
-  settings = recalculateColumnConfig(settings);
+  settings = recalculateColumnConfig(settings, false);
 };
 
-const onBodyScroll = (): void => {
-  const currentColumn = Math.round(
-    document.body.scrollLeft / settings.columnWidth,
-  );
-  if (currentColumn < settings.pagesPerColumn.length) {
-    settings.currentPage = settings.pagesPerColumn[currentColumn];
+let lastScroll = 0;
+let pageNumberBtn: HTMLElement | null;
+
+const onBodyScroll = (ev: Event): void => {
+  if (settings.animateEnabled) {
+    let { columnWidth } = settings;
+    if (!settings.readMode) {
+      columnWidth *= 0.75;
+    }
+    const currentColumn = Math.round(
+      (document.body.scrollLeft - settings.scrollFix) / columnWidth,
+    );
+    if (currentColumn < settings.pagesPerColumn.length) {
+      settings.currentPage = settings.pagesPerColumn[currentColumn];
+    }
+    if (pageNumberBtn) {
+      pageNumberBtn.innerText = settings.currentPage;
+    }
+  } else {
+    ev.preventDefault();
   }
 };
 
 const onWindowLoad = (): void => {
+  pageNumberBtn = document.getElementById('pageNumber');
   document.documentElement.style.setProperty(
     '--fontSize',
     `${settings.currentFontSize}px`,
@@ -45,7 +70,7 @@ const onWindowLoad = (): void => {
       '--fontSize',
       `${settings.currentFontSize}px`,
     );
-    recalculate();
+    settings = recalculateColumnConfig(settings, true);
   };
   increaseFontButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
@@ -71,33 +96,32 @@ const onWindowLoad = (): void => {
         settings.animateEnabled = false;
 
         if (settings.readMode) {
-          settings.scrollFix = 0;
+          const scrollFix = document.body.scrollLeft * - 1/3;
+          settings.scrollFix = scrollFix;
           document.documentElement.style.setProperty(
             '--horizontalScrollFix',
-            '0',
+            `${settings.scrollFix}px`,
           );
         } else {
           const scrollFix = document.body.scrollLeft * 0.25;
           settings.scrollFix = scrollFix;
           document.documentElement.style.setProperty(
             '--horizontalScrollFix',
-            `${scrollFix}px`,
+            `${settings.scrollFix}px`,
           );
         }
-
-        setTimeout((): void => {
-          settings.animateEnabled = true;
-          recalculate();
-        }, 500);
-
         zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
-        buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
       }
     }
+    lastScroll = document.body.scrollLeft;
   });
-  recalculate();
-  setTimeout(recalculate, 1000);
-  document.body.addEventListener('scroll', onBodyScroll);
+  document.body.addEventListener('scroll', onBodyScroll);  
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then((): void => {
+      recalculate();
+    });
+  }
 
   document.body
     .querySelectorAll<HTMLButtonElement>('body > .buttons > .selectTypography')
@@ -106,10 +130,44 @@ const onWindowLoad = (): void => {
         ev.preventDefault();
         ev.stopPropagation();
         document.body.className = `viewer epub ${button.value}`;
-        recalculate();
-        setTimeout(recalculate, 1000);
+        updateFontInfo();
       });
     });
+
+  [
+    'webkitTransitionEnd',
+    'otransitionend',
+    'oTransitionEnd',
+    'msTransitionEnd',
+    'transitionend',
+  ].forEach((eventName): void => {
+    zoomPanel.addEventListener(
+      eventName,
+      (): void => {
+        document.body.scrollTo(document.body.scrollLeft - settings.scrollFix ,0);
+        settings.scrollFix = 0;
+        document.documentElement.style.setProperty(
+          '--animationSpeed',
+          `0s`,
+        );
+        document.documentElement.style.setProperty(
+          '--horizontalScrollFix',
+          `${settings.scrollFix}px`,
+        );        
+        recalculate();
+        
+        setTimeout((): void => {
+          document.documentElement.style.setProperty(
+            '--animationSpeed',
+            `0.5s`,
+          );
+
+          settings.animateEnabled = true;
+        });
+      },
+      false,
+    );
+  });
 };
 
 window.addEventListener('load', onWindowLoad);

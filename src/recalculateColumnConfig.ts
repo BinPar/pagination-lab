@@ -1,7 +1,7 @@
 import PageNumberMark from './model/PageNumberMark';
 import Settings from './model/Settings';
 
-const recalculateColumnConfig = (settings: Settings): Settings => {
+const recalculateColumnConfig = (settings: Settings, updateScroll= false): Settings => {
   const { currentFontSize } = settings;
   const newSettings = { ...settings };
   const labelsContainer = document.body.querySelector(
@@ -33,8 +33,8 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
   const totalColumnWidth = windowWidth / columnsInPageWidth;
 
   const bodyWidth =
-  document.body.scrollWidth * (settings.readMode ? 1 : 1 / 0.75) -
-  settings.scrollFix;
+    (document.body.scrollWidth - settings.scrollFix) *
+    (settings.readMode ? 1 : 1 / 0.75);
 
   const totalColumns = Math.round(bodyWidth / totalColumnWidth);
 
@@ -45,7 +45,7 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
 
   const totalChapterWidth = totalColumnWidth * totalColumns;
 
-  const scrollingElement = document.scrollingElement || document.body;
+  const scrollingElement = document.body;
 
   document.documentElement.style.setProperty(
     '--totalChapterWidth',
@@ -63,10 +63,10 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
       const rects = element.getClientRects();
       let left = rects[0].x;
       if (!settings.readMode) {
-        left -= ((window.innerWidth / 2)*0.25);
+        left -= (window.innerWidth / 2) * 0.25;
         left /= 0.75;
       }
-      console.log(scrollLeft);
+      left += scrollLeft;
 
       if (element.dataset.page) {
         pagesDict.push({
@@ -81,8 +81,6 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
   if (newSettings.currentPage === '') {
     newSettings.currentPage = currentPage;
   }
-
-  console.log(pagesDict.map((c): number => Math.round(c.left)));
 
   let pageSet = false;
   let setScrollTo = scrollingElement.scrollLeft;
@@ -114,16 +112,18 @@ const recalculateColumnConfig = (settings: Settings): Settings => {
       const scrollSnapDiv = document.createElement('div');
       scrollSnapDiv.className = 'scrollSnap';
       if (newSettings.readMode) {
-        scrollSnapDiv.style.left = `${(column - 1) * totalColumnWidth}px`;
+        scrollSnapDiv.style.left = `${(column - 1) * totalColumnWidth + settings.scrollFix}px`;
       } else {
         scrollSnapDiv.style.left = `${
-          (column - 1) * (totalColumnWidth * 0.75)  + settings.scrollFix
+          (column - 1) * (totalColumnWidth * 0.75) + settings.scrollFix
         }px`;
       }
       pageSnapsContainer?.appendChild(scrollSnapDiv);
     }
   }
-  scrollingElement.scrollLeft = setScrollTo;
+  if (updateScroll) {
+    scrollingElement.scrollLeft = setScrollTo;
+  }
   newSettings.columnWidth = totalColumnWidth;
   newSettings.totalColumns = totalColumns;
   newSettings.pagesPerColumn = pagesPerColumn;

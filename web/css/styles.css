@@ -16,7 +16,8 @@ body {
 
 body > .zoomPanel {
   transition-property: transform;
-  transition-duration: 0.5s;
+  transition-duration: var(--animationSpeed, 0.5s);
+  transition-delay: 0ms;
   transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.2);
   transform: translateX(var(--horizontalScrollFix, 0)) scale(0.75);
 }
@@ -26,7 +27,7 @@ body > .zoomPanel.zoom {
 }
 
 body > .zoomPanel > .chapterWrapper {
-  column-width: 20em; 
+  column-width: 30em; 
   padding: 2em;
   column-rule: 1px solid #eee;
   column-rule-style: solid;
