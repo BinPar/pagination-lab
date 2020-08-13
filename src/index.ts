@@ -181,7 +181,7 @@ const onWindowLoad = (): void => {
     ev.preventDefault();
     ev.stopPropagation();
     if (settings.lineHeight < 2) {
-      settings.lineHeight += 0.2;
+      settings.lineHeight += 0.1;
       updateFontInfo();
     }
   });
@@ -189,7 +189,7 @@ const onWindowLoad = (): void => {
     ev.preventDefault();
     ev.stopPropagation();
     if (settings.lineHeight > 1) {
-      settings.lineHeight -= 0.2;
+      settings.lineHeight -= 0.1;
       updateFontInfo();
     }
   });
