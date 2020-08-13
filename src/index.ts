@@ -20,7 +20,10 @@ let settings: Settings = {
   pagesPerColumn: [],
   readMode: true,
   animateEnabled: true,
+  invertViewerColor: false,
 };
+
+let handleZoomAnimation = false;
 
 const recalculate = (): void => {
   settings = recalculateColumnConfig(settings, false);
@@ -52,6 +55,28 @@ const onBodyScroll = (ev: Event): void => {
   }
 };
 
+window.addEventListener(
+  'touchmove',
+  (ev: TouchEvent): void => {
+    if (!settings.animateEnabled || ev.targetTouches.length > 1) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+    }
+  },
+  { passive: false },
+);
+
+window.addEventListener(
+  'touchstart',
+  (ev: TouchEvent): void => {
+    if (ev.targetTouches.length > 1) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+    }
+  },
+  { passive: false },
+);
+
 const onWindowLoad = (): void => {
   pageNumberBtn = document.getElementById('pageNumber');
   document.documentElement.style.setProperty(
@@ -65,6 +90,9 @@ const onWindowLoad = (): void => {
   const increaseFontButton = document.body.querySelector(
     'body > .buttons > .increaseFontButton',
   );
+  const nightModeButton = document.body.querySelector(
+    'body > .buttons > .nightModeButton',
+  );
   const decreaseFontButton = document.body.querySelector(
     'body > .buttons > .decreaseFontButton',
   );
@@ -75,6 +103,17 @@ const onWindowLoad = (): void => {
     );
     settings = recalculateColumnConfig(settings, true);
   };
+  nightModeButton?.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (!handleZoomAnimation) {
+      settings.invertViewerColor = !settings.invertViewerColor;
+      document.documentElement.style.setProperty(
+        '--invertViewerColor',
+        `${settings.invertViewerColor ? 1 : 0}`,
+      );    
+    }
+  });
   increaseFontButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -113,6 +152,7 @@ const onWindowLoad = (): void => {
             `${settings.scrollFix}px`,
           );
         }
+        handleZoomAnimation = true;
         zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
         buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
       }
@@ -147,34 +187,31 @@ const onWindowLoad = (): void => {
     zoomPanel.addEventListener(
       eventName,
       (): void => {
-        const newScrollX = document.body.scrollLeft - settings.scrollFix;
-        document.body.scrollTo(
-          newScrollX,
-          0,
-        );
-        settings.scrollFix = 0;
-        document.documentElement.style.setProperty('--animationSpeed', `0s`);
-        document.documentElement.style.setProperty(
-          '--horizontalScrollFix',
-          `${settings.scrollFix}px`,
-        );
-        
-        recalculate();
-        setTimeout((): void => {      
+        if (handleZoomAnimation) {
+          handleZoomAnimation = false;
+          const newScrollX = document.body.scrollLeft - settings.scrollFix;
+          document.body.scrollTo(newScrollX, 0);
+          settings.scrollFix = 0;
+          document.documentElement.style.setProperty('--animationSpeed', `0s`);
           document.documentElement.style.setProperty(
-            '--animationSpeed',
-            `0.5s`,
+            '--horizontalScrollFix',
+            `${settings.scrollFix}px`,
           );
-          settings.animateEnabled = true;          
-          document.documentElement.style.setProperty(
-            '--viewerSnapType',
-            `x mandatory`,
-          );
-          document.body.scrollTo(
-            newScrollX,
-            0,
-          );
-        }, 0);
+
+          recalculate();
+          setTimeout((): void => {
+            document.documentElement.style.setProperty(
+              '--animationSpeed',
+              `0.5s`,
+            );
+            settings.animateEnabled = true;
+            document.documentElement.style.setProperty(
+              '--viewerSnapType',
+              `x mandatory`,
+            );
+            document.body.scrollTo(newScrollX, 0);
+          }, 0);
+        }
       },
       false,
     );

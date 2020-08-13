@@ -1,31 +1,47 @@
 html {
-  height  : 100%;
+  height: 100%;
   overflow: hidden;
-  position: relative;  
+  position: relative;
   scroll-snap-align: none;
 }
 
 body {
-    scroll-snap-align: none;
-    height  : 100%;
-    margin: 0;
-    padding: 0;
-    overflow-y: hidden;
-    overflow-x: scroll;    
-    scroll-snap-type: var(--viewerSnapType, x mandatory);
-    font-size: var(--fontSize, 18px);
+  scroll-snap-align: none;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y: hidden;
+  overflow-x: scroll;
+  scroll-snap-type: var(--viewerSnapType, x mandatory);
+  font-size: var(--fontSize, 18px);
+  background-color: #fff;     
 }
 
 body * {
   scroll-snap-align: none;
 }
 
-body > .zoomPanel {
-  transition-property: transform;
-  transition-duration: var(--animationSpeed, 0.5s);
-  transition-delay: 0ms;
-  transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.2);
-  transform: translateX(var(--horizontalScrollFix, 0)) scale(0.75);
+body > .zoomPanel {  
+  transition: filter 0.5s linear 0ms, transform var(--animationSpeed, 0.5s) cubic-bezier(0.175, 0.885, 0.32, 1.2) 0ms;
+  transform: translateX(var(--horizontalScrollFix, 0)) scale(0.75);  
+  filter: invert(var(--invertViewerColor, 0));
+  background-color: white;
+}
+body > .zoomPanel img, body > .zoomPanel video {
+  transition: filter 0.5s linear 0ms;
+  filter: invert(var(--invertViewerColor, 0));
+}
+
+.backgroundPageColor {
+  position: fixed;
+  background-color: white;
+  left: 0px;
+  top: 0px;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10;
+  transition: filter 0.5s linear 0ms;
+  filter: invert(var(--invertViewerColor, 0));
 }
 
 body > .zoomPanel.zoom {
@@ -33,7 +49,7 @@ body > .zoomPanel.zoom {
 }
 
 body > .zoomPanel > .chapterWrapper {
-  column-width: 30em; 
+  column-width: 25em;
   padding: 2em;
   column-rule: 1px solid #eee;
   column-rule-style: solid;
@@ -51,8 +67,10 @@ body > .zoomPanel > .chapterWrapper > .additionalPage {
   clear: both;
 }
 
-body > .zoomPanel > .chapterWrapper * {
-  max-width: calc(var(--totalColumnWidth, 0) - 2em);
+body > .zoomPanel > .chapterWrapper img,
+body > .zoomPanel > .chapterWrapper video,
+body > .zoomPanel > .chapterWrapper table {
+  max-width: calc(var(--totalColumnWidth, 0) - 4em);
 }
 
 body > .zoomPanel > .chapterWrapper > #totalColumnWidthCalculator {
@@ -85,7 +103,7 @@ body > .pageSnaps > .scrollSnap {
 }
 
 body > .zoomPanel > .labelsForEveryPage > .label {
-  position: relative;  
+  position: relative;
   width: var(--totalColumnWidth, 0);
   float: left;
   height: 2em;
