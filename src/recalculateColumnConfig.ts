@@ -92,7 +92,7 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
     if (!settings.readMode) {
       relativeColumnWidth *= 0.75;
     }
-    const maxLeft = column * relativeColumnWidth;
+    const maxLeft = column * totalColumnWidth;
     if (column === 1 || column > totalColumns - 10) {
       currentPage = '';
     } else if (pagesDict.length && pagesDict[0].left < maxLeft) {
@@ -102,7 +102,7 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
           if (currentPage === newSettings.currentPage) {
             pageSet = true;
           }
-          setScrollTo = maxLeft - relativeColumnWidth;
+          setScrollTo = column * relativeColumnWidth - relativeColumnWidth;
         }
         pagesDict.shift();
       }
