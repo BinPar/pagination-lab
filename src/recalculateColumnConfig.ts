@@ -33,7 +33,7 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
   const totalColumnWidth = windowWidth / columnsInPageWidth;
 
   const bodyWidth =
-    (document.body.scrollWidth - settings.scrollFix) *
+    (document.body.scrollWidth) *
     (settings.readMode ? 1 : 1 / 0.75);
 
   const totalColumns = Math.round(bodyWidth / totalColumnWidth);
@@ -64,9 +64,12 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
       let left = rects[0].x;
       if (!settings.readMode) {
         left -= (window.innerWidth / 2) * 0.25;
+        left += scrollLeft;
         left /= 0.75;
+      } else {
+        left += scrollLeft;
       }
-      left += scrollLeft;
+      
 
       if (element.dataset.page) {
         pagesDict.push({
@@ -78,7 +81,7 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
 
   let currentPage = pagesDict.length ? pagesDict[0].page : '';
 
-  if (newSettings.currentPage === '') {
+  if (newSettings.currentPage === '') {    
     newSettings.currentPage = currentPage;
   }
 
@@ -100,6 +103,7 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
         pagesDict.shift();
       }
     }
+    
     pagesPerColumn.push(currentPage);
     const columnDiv = document.createElement('div');
     columnDiv.className = 'label';
@@ -112,17 +116,17 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
       const scrollSnapDiv = document.createElement('div');
       scrollSnapDiv.className = 'scrollSnap';
       if (newSettings.readMode) {
-        scrollSnapDiv.style.left = `${(column - 1) * totalColumnWidth + settings.scrollFix}px`;
+        scrollSnapDiv.style.left = `${(column - 1) * totalColumnWidth}px`;
       } else {
         scrollSnapDiv.style.left = `${
-          (column - 1) * (totalColumnWidth * 0.75) + settings.scrollFix
+          (column - 1) * (totalColumnWidth * 0.75)
         }px`;
       }
       pageSnapsContainer?.appendChild(scrollSnapDiv);
     }
   }
   if (updateScroll) {
-    scrollingElement.scrollLeft = setScrollTo;
+    document.body.scrollTo(setScrollTo ,0);
   }
   newSettings.columnWidth = totalColumnWidth;
   newSettings.totalColumns = totalColumns;

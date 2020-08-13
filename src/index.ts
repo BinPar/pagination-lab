@@ -2,7 +2,7 @@ import recalculateColumnConfig from './recalculateColumnConfig';
 import Settings from './model/Settings';
 
 interface FontFaceSet {
-  readonly ready: Promise<FontFaceSet>;   
+  readonly ready: Promise<FontFaceSet>;
 }
 
 declare global {
@@ -26,7 +26,10 @@ const recalculate = (): void => {
   settings = recalculateColumnConfig(settings, false);
 };
 
-let lastScroll = 0;
+const recalculateAndScroll = (): void => {
+  settings = recalculateColumnConfig(settings, true);
+};
+
 let pageNumberBtn: HTMLElement | null;
 
 const onBodyScroll = (ev: Event): void => {
@@ -94,9 +97,9 @@ const onWindowLoad = (): void => {
       settings.readMode = !settings.readMode;
       if (zoomPanel && buttonsPanel) {
         settings.animateEnabled = false;
-
+        document.documentElement.style.setProperty('--viewerSnapType', `none`);
         if (settings.readMode) {
-          const scrollFix = document.body.scrollLeft * - 1/3;
+          const scrollFix = (document.body.scrollLeft * -1) / 3;
           settings.scrollFix = scrollFix;
           document.documentElement.style.setProperty(
             '--horizontalScrollFix',
@@ -113,13 +116,12 @@ const onWindowLoad = (): void => {
         zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
       }
     }
-    lastScroll = document.body.scrollLeft;
   });
-  document.body.addEventListener('scroll', onBodyScroll);  
+  document.body.addEventListener('scroll', onBodyScroll);
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then((): void => {
-      recalculate();
+      recalculateAndScroll();
     });
   }
 
@@ -144,26 +146,33 @@ const onWindowLoad = (): void => {
     zoomPanel.addEventListener(
       eventName,
       (): void => {
-        document.body.scrollTo(document.body.scrollLeft - settings.scrollFix ,0);
-        settings.scrollFix = 0;
-        document.documentElement.style.setProperty(
-          '--animationSpeed',
-          `0s`,
+        const newScrollX = document.body.scrollLeft - settings.scrollFix;
+        document.body.scrollTo(
+          newScrollX,
+          0,
         );
+        settings.scrollFix = 0;
+        document.documentElement.style.setProperty('--animationSpeed', `0s`);
         document.documentElement.style.setProperty(
           '--horizontalScrollFix',
           `${settings.scrollFix}px`,
         );        
         recalculate();
-        
-        setTimeout((): void => {
+        setTimeout((): void => {      
           document.documentElement.style.setProperty(
             '--animationSpeed',
             `0.5s`,
           );
-
-          settings.animateEnabled = true;
-        });
+          settings.animateEnabled = true;          
+          document.documentElement.style.setProperty(
+            '--viewerSnapType',
+            `x mandatory`,
+          );
+          document.body.scrollTo(
+            newScrollX,
+            0,
+          );
+        }, 100);
       },
       false,
     );
@@ -171,4 +180,4 @@ const onWindowLoad = (): void => {
 };
 
 window.addEventListener('load', onWindowLoad);
-window.addEventListener('resize', recalculate);
+window.addEventListener('resize', recalculateAndScroll);
