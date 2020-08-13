@@ -21,6 +21,8 @@ let settings: Settings = {
   readMode: true,
   animateEnabled: true,
   invertViewerColor: false,
+  sepiaViewerColor: false,
+  lineHeight: 1.5,
 };
 
 let handleZoomAnimation = false;
@@ -87,22 +89,52 @@ const onWindowLoad = (): void => {
     'body > .zoomPanel',
   ) as HTMLDivElement;
   const buttonsPanel = document.body.querySelector('body > .buttons');
+
+  
+  const fullScreenModeButton = document.body.querySelector(
+    'body > .buttons > .fullScreenModeButton',
+  );
+
   const increaseFontButton = document.body.querySelector(
     'body > .buttons > .increaseFontButton',
-  );
-  const nightModeButton = document.body.querySelector(
-    'body > .buttons > .nightModeButton',
   );
   const decreaseFontButton = document.body.querySelector(
     'body > .buttons > .decreaseFontButton',
   );
+  const increaseLineHeight = document.body.querySelector(
+    'body > .buttons > .increaseLineHeight',
+  );
+  const decreaseLineHeight = document.body.querySelector(
+    'body > .buttons > .decreaseLineHeight',
+  );
+  const nightModeButton = document.body.querySelector(
+    'body > .buttons > .nightModeButton',
+  );
+  const sepiaModeButton = document.body.querySelector(
+    'body > .buttons > .sepiaModeButton',
+  );
+  
   const updateFontInfo = (): void => {
     document.documentElement.style.setProperty(
       '--fontSize',
       `${settings.currentFontSize}px`,
     );
+    document.documentElement.style.setProperty(
+      '--lineHeight',
+      `${settings.lineHeight}em`,
+    );
     settings = recalculateColumnConfig(settings, true);
   };
+  fullScreenModeButton?.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.body.requestFullscreen();
+    }
+    
+  });
   nightModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -111,6 +143,21 @@ const onWindowLoad = (): void => {
       document.documentElement.style.setProperty(
         '--invertViewerColor',
         `${settings.invertViewerColor ? 1 : 0}`,
+      );    
+    }
+  });
+  sepiaModeButton?.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (!handleZoomAnimation) {
+      settings.sepiaViewerColor = !settings.sepiaViewerColor;
+      document.documentElement.style.setProperty(
+        '--sepiaViewerColor',
+        `${settings.sepiaViewerColor ? 1 : 0}`,
+      );    
+      document.documentElement.style.setProperty(
+        '--contrastViewerColor',
+        `${settings.sepiaViewerColor ? 0.6 : 1}`,
       );    
     }
   });
@@ -130,6 +177,23 @@ const onWindowLoad = (): void => {
       updateFontInfo();
     }
   });
+  increaseLineHeight?.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (settings.lineHeight < 2) {
+      settings.lineHeight += 0.2;
+      updateFontInfo();
+    }
+  });
+  decreaseLineHeight?.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (settings.lineHeight > 1) {
+      settings.lineHeight -= 0.2;
+      updateFontInfo();
+    }
+  });
+  
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     if (settings.animateEnabled) {

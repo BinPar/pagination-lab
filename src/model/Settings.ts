@@ -7,5 +7,7 @@ export default interface Settings {
   readMode: boolean;
   animateEnabled: boolean;
   invertViewerColor: boolean;
+  sepiaViewerColor: boolean;
   scrollFix: number;
+  lineHeight: number;
 }

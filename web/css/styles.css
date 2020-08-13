@@ -14,6 +14,7 @@ body {
   overflow-x: scroll;
   scroll-snap-type: var(--viewerSnapType, x mandatory);
   font-size: var(--fontSize, 18px);
+  line-height: var(--lineHeight, 1.5em);
   background-color: #fff;     
 }
 
@@ -24,10 +25,12 @@ body * {
 body > .zoomPanel {  
   transition: filter 0.5s linear 0ms, transform var(--animationSpeed, 0.5s) cubic-bezier(0.175, 0.885, 0.32, 1.2) 0ms;
   transform: translateX(var(--horizontalScrollFix, 0)) scale(0.75);  
-  filter: invert(var(--invertViewerColor, 0));
+  filter: contrast(var(--contrastViewerColor, 1)) sepia(var(--sepiaViewerColor, 0)) invert(var(--invertViewerColor, 0));
   background-color: white;
 }
-body > .zoomPanel img, body > .zoomPanel video {
+body > .zoomPanel img,
+body > .zoomPanel video,
+body > .zoomPanel iframe {
   transition: filter 0.5s linear 0ms;
   filter: invert(var(--invertViewerColor, 0));
 }
@@ -41,7 +44,7 @@ body > .zoomPanel img, body > .zoomPanel video {
   height: 100vh;
   z-index: -10;
   transition: filter 0.5s linear 0ms;
-  filter: invert(var(--invertViewerColor, 0));
+  filter: contrast(var(--contrastViewerColor, 1)) sepia(var(--sepiaViewerColor, 0)) invert(var(--invertViewerColor, 0));
 }
 
 body > .zoomPanel.zoom {
@@ -69,7 +72,8 @@ body > .zoomPanel > .chapterWrapper > .additionalPage {
 
 body > .zoomPanel > .chapterWrapper img,
 body > .zoomPanel > .chapterWrapper video,
-body > .zoomPanel > .chapterWrapper table {
+body > .zoomPanel > .chapterWrapper table,
+body > .zoomPanel > .chapterWrapper iframe {
   max-width: calc(var(--totalColumnWidth, 0) - 4em);
 }
 
@@ -132,17 +136,18 @@ body > .buttons.zoom {
 }
 
 body > .buttons button {
+  font-family: Arial, Helvetica, sans-serif;
   float: left;
   width: 28px;
   height: 28px;
   font-size: 14px;
   border: none;
+  font-weight: 600;
   margin-top: 0px;
   margin: 0;
   padding: 0;
   background-color: black;
   color: white;
-  font-weight: 300;
   outline: none;
 }
 
