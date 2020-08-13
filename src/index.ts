@@ -114,6 +114,7 @@ const onWindowLoad = (): void => {
           );
         }
         zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
+        buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
       }
     }
   });
@@ -156,7 +157,8 @@ const onWindowLoad = (): void => {
         document.documentElement.style.setProperty(
           '--horizontalScrollFix',
           `${settings.scrollFix}px`,
-        );        
+        );
+        
         recalculate();
         setTimeout((): void => {      
           document.documentElement.style.setProperty(
@@ -172,7 +174,7 @@ const onWindowLoad = (): void => {
             newScrollX,
             0,
           );
-        }, 100);
+        }, 0);
       },
       false,
     );

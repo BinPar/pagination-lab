@@ -88,7 +88,11 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
   let pageSet = false;
   let setScrollTo = scrollingElement.scrollLeft;
   for (let column = 1; column <= totalColumns; column++) {
-    const maxLeft = column * totalColumnWidth;
+    let relativeColumnWidth = totalColumnWidth;
+    if (!settings.readMode) {
+      relativeColumnWidth *= 0.75;
+    }
+    const maxLeft = column * relativeColumnWidth;
     if (column === 1 || column > totalColumns - 10) {
       currentPage = '';
     } else if (pagesDict.length && pagesDict[0].left < maxLeft) {
@@ -98,7 +102,7 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
           if (currentPage === newSettings.currentPage) {
             pageSet = true;
           }
-          setScrollTo = maxLeft - totalColumnWidth;
+          setScrollTo = maxLeft - relativeColumnWidth;
         }
         pagesDict.shift();
       }
