@@ -12,11 +12,13 @@
     "downlevel",
     "epub",
     "n",
+    "otransitionend",
     "plusplus",
     "respawn",
     "sourcemap",
     "stylesheet",
     "stylesheets",
+    "transitionend",
     "tslib",
     "unstyled"
   ]
