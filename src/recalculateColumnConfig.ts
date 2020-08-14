@@ -1,8 +1,10 @@
 import PageNumberMark from './model/PageNumberMark';
 import Settings from './model/Settings';
 
-const recalculateColumnConfig = (settings: Settings, updateScroll= false): Settings => {
-  const { currentFontSize } = settings;
+const recalculateColumnConfig = (
+  settings: Settings,
+  updateScroll = false,
+): Settings => {
   const newSettings = { ...settings };
   const labelsContainer = document.body.querySelector(
     'body > .zoomPanel > .labelsForEveryPage',
@@ -28,13 +30,16 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
   document.documentElement.style.setProperty('--totalColumnWidth', `0`);
   const totalColumnWidthCalculator =
     document.getElementById('totalColumnWidthCalculator')?.clientWidth || 1;
-  const columnWidth = totalColumnWidthCalculator + currentFontSize * 2;
+  const columnWidth = totalColumnWidthCalculator + 36;
   const columnsInPageWidth = Math.floor(windowWidth / columnWidth);
   const totalColumnWidth = windowWidth / columnsInPageWidth;
 
-  const bodyWidth =
-    (document.body.scrollWidth) *
-    (settings.readMode ? 1 : 1 / 0.75);
+  let bodyScrollWidth = document.body.scrollWidth;
+  if (!settings.readMode) {
+    bodyScrollWidth -= (window.innerWidth / 2) * 0.25;
+  }
+
+  const bodyWidth = bodyScrollWidth * (settings.readMode ? 1 : 1 / 0.75);
 
   const totalColumns = Math.round(bodyWidth / totalColumnWidth);
 
@@ -69,7 +74,6 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
       } else {
         left += scrollLeft;
       }
-      
 
       if (element.dataset.page) {
         pagesDict.push({
@@ -80,8 +84,8 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
     });
 
   let currentPage = pagesDict.length ? pagesDict[0].page : '';
-
-  if (newSettings.currentPage === '') {    
+  let nextPage = '';
+  if (newSettings.currentPage === '') {
     newSettings.currentPage = currentPage;
   }
 
@@ -93,10 +97,11 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
       relativeColumnWidth *= 0.75;
     }
     const maxLeft = column * totalColumnWidth;
-    if (column === 1 || column > totalColumns - 10) {
+    if (column === 1 || column > totalColumns - 1) {
       currentPage = '';
     } else if (pagesDict.length && pagesDict[0].left < maxLeft) {
       currentPage = pagesDict[0].page;
+      nextPage = currentPage;
       while (pagesDict.length && pagesDict[0].left < maxLeft) {
         if (!pageSet && newSettings.currentPage === pagesDict[0].page) {
           if (currentPage === newSettings.currentPage) {
@@ -104,10 +109,15 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
           }
           setScrollTo = column * relativeColumnWidth - relativeColumnWidth;
         }
-        pagesDict.shift();
+        const removed = pagesDict.shift();
+        if (removed) {
+          nextPage = removed.page;
+        }
       }
     }
-    
+    if (currentPage === '-') {
+      currentPage = '';
+    }
     pagesPerColumn.push(currentPage);
     const columnDiv = document.createElement('div');
     columnDiv.className = 'label';
@@ -128,13 +138,15 @@ const recalculateColumnConfig = (settings: Settings, updateScroll= false): Setti
       }
       pageSnapsContainer?.appendChild(scrollSnapDiv);
     }
+    currentPage = nextPage;
   }
   if (updateScroll) {
-    document.body.scrollTo(setScrollTo ,0);
+    document.body.scrollTo(setScrollTo, 0);
   }
   newSettings.columnWidth = totalColumnWidth;
   newSettings.totalColumns = totalColumns;
   newSettings.pagesPerColumn = pagesPerColumn;
+
   return newSettings;
 };
 

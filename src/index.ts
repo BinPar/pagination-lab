@@ -164,7 +164,7 @@ const onWindowLoad = (): void => {
   increaseFontButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (settings.currentFontSize < 50) {
+    if (settings.currentFontSize < 32) {
       settings.currentFontSize += 2;
       updateFontInfo();
     }
@@ -261,25 +261,26 @@ const onWindowLoad = (): void => {
             '--horizontalScrollFix',
             `${settings.scrollFix}px`,
           );
-
           recalculate();
-          setTimeout((): void => {
-            document.documentElement.style.setProperty(
-              '--animationSpeed',
-              `0.5s`,
-            );
-            settings.animateEnabled = true;
-            document.documentElement.style.setProperty(
-              '--viewerSnapType',
-              `x mandatory`,
-            );
-            document.body.scrollTo(newScrollX, 0);
-          }, 0);
+          window.requestAnimationFrame((): void => {
+              document.documentElement.style.setProperty(
+                '--animationSpeed',
+                `0.5s`,
+              );    
+              document.documentElement.style.setProperty(
+                '--viewerSnapType',
+                `x mandatory`,
+              );
+              settings.animateEnabled = true;
+              document.body.scrollTo(newScrollX, 0);              
+          });          
         }
       },
       false,
     );
   });
+
+  
 };
 
 window.addEventListener('load', onWindowLoad);
