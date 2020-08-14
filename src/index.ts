@@ -140,17 +140,18 @@ const onWindowLoad = (): void => {
     if (settings.verticalScroll) {
       document.documentElement.style.setProperty('--animationSpeed', `0s`);
       document.documentElement.style.overflowY = 'auto';
-      document.documentElement.style.overflowX = 'none';
+      document.documentElement.style.overflowX = 'none';      
       document.documentElement.scrollTo(0,0);      
       document.body.scrollTo(0,0);
       setTimeout((): void => {        
         const pageIndicator = document.body.querySelector(`body > .zoomPanel > .chapterWrapper [data-page="${settings.currentPage}"]`);
         if (pageIndicator) {
-          console.log(pageIndicator.getBoundingClientRect().top);
           document.documentElement.scrollTo(0,pageIndicator.getBoundingClientRect().top);
         }
       }, 0);
     } else {      
+      document.documentElement.scrollTo(0,0);
+      document.body.scrollTo(0,0);
       document.documentElement.style.setProperty(
         '--animationSpeed',
         `0.5s`,
@@ -158,6 +159,20 @@ const onWindowLoad = (): void => {
       document.documentElement.style.overflowY = 'hidden';
       document.documentElement.style.overflowX = 'hidden';
       settings = recalculateColumnConfig(settings, true);
+      settings.readMode = true;
+      if (zoomPanel && buttonsPanel) {
+        settings.animateEnabled = false;
+        document.documentElement.style.setProperty('--viewerSnapType', `none`);
+        const scrollFix = (document.body.scrollLeft * -1) / 3;
+        settings.scrollFix = scrollFix;
+        document.documentElement.style.setProperty(
+          '--horizontalScrollFix',
+          `${settings.scrollFix}px`,
+        );
+        handleZoomAnimation = true;
+        zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
+        buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
+      }
     }    
   });
   fullScreenModeButton?.addEventListener('click', (ev: Event): void => {
@@ -230,28 +245,30 @@ const onWindowLoad = (): void => {
   
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();    
-    if (settings.animateEnabled || settings.verticalScroll) {
+    if (settings.animateEnabled) {
       settings.readMode = !settings.readMode;
       if (zoomPanel && buttonsPanel) {
-        settings.animateEnabled = false;
-        document.documentElement.style.setProperty('--viewerSnapType', `none`);
-        if (settings.readMode) {
-          const scrollFix = (document.body.scrollLeft * -1) / 3;
-          settings.scrollFix = scrollFix;
-          document.documentElement.style.setProperty(
-            '--horizontalScrollFix',
-            `${settings.scrollFix}px`,
-          );
-        } else {
-          const scrollFix = document.body.scrollLeft * 0.25;
-          settings.scrollFix = scrollFix;
-          document.documentElement.style.setProperty(
-            '--horizontalScrollFix',
-            `${settings.scrollFix}px`,
-          );
+        if (!settings.verticalScroll) {
+          settings.animateEnabled = false;
+          document.documentElement.style.setProperty('--viewerSnapType', `none`);
+          if (settings.readMode) {
+            const scrollFix = (document.body.scrollLeft * -1) / 3;
+            settings.scrollFix = scrollFix;
+            document.documentElement.style.setProperty(
+              '--horizontalScrollFix',
+              `${settings.scrollFix}px`,
+            );
+          } else {
+            const scrollFix = document.body.scrollLeft * 0.25;
+            settings.scrollFix = scrollFix;
+            document.documentElement.style.setProperty(
+              '--horizontalScrollFix',
+              `${settings.scrollFix}px`,
+            );
+          }
+          handleZoomAnimation = true;
+          zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
         }
-        handleZoomAnimation = true;
-        zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
         buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
       }
     }

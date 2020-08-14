@@ -14,7 +14,8 @@ body {
   scroll-snap-type: var(--viewerSnapType, x mandatory);
   font-size: var(--fontSize, 18px);
   line-height: var(--lineHeight, 1.5em);
-  background-color: #fff;     
+  background-color: #fff;
+  overscroll-behavior-y: contain;
 }
 
 body.vertical {
@@ -27,10 +28,13 @@ body * {
   scroll-snap-align: none;
 }
 
-body > .zoomPanel {  
-  transition: filter 0.5s linear 0ms, transform var(--animationSpeed, 0.5s) cubic-bezier(0.175, 0.885, 0.32, 1.2) 0ms;
-  transform: translateX(var(--horizontalScrollFix, 0)) scale(0.75);  
-  filter: contrast(var(--contrastViewerColor, 1)) sepia(var(--sepiaViewerColor, 0)) invert(var(--invertViewerColor, 0));
+body > .zoomPanel {
+  transition: filter 0.5s linear 0ms,
+    transform var(--animationSpeed, 0.5s) cubic-bezier(0.175, 0.885, 0.32, 1.2)
+      0ms;
+  transform: translateX(var(--horizontalScrollFix, 0)) scale(0.75);
+  filter: contrast(var(--contrastViewerColor, 1))
+    sepia(var(--sepiaViewerColor, 0)) invert(var(--invertViewerColor, 0));
   background-color: white;
 }
 body > .zoomPanel img,
@@ -49,18 +53,19 @@ body > .zoomPanel iframe {
   height: 100vh;
   z-index: -10;
   transition: filter 0.5s linear 0ms;
-  filter: contrast(var(--contrastViewerColor, 1)) sepia(var(--sepiaViewerColor, 0)) invert(var(--invertViewerColor, 0));
+  filter: contrast(var(--contrastViewerColor, 1))
+    sepia(var(--sepiaViewerColor, 0)) invert(var(--invertViewerColor, 0));
 }
 
 body > .zoomPanel.zoom {
   transform: translateX(var(--horizontalScrollFix, 0)) translateY(-1em) scale(1);
 }
 
-body.vertical > .zoomPanel  {
+body.vertical > .zoomPanel {
   transform: translateX(0) translateY(-1em) scale(1);
 }
 
-body.vertical > .zoomPanel.zoom  {
+body.vertical > .zoomPanel.zoom {
   transform: translateX(0) translateY(-1em) scale(1);
 }
 
@@ -106,7 +111,6 @@ body.vertical > .zoomPanel > .chapterWrapper > #totalColumnWidthCalculator {
   height: 2em;
 }
 
-
 body > .zoomPanel > .labelsForEveryPage {
   position: relative;
   bottom: 1em;
@@ -138,7 +142,6 @@ body > .pageSnaps > .scrollSnap {
   top: 0px;
   scroll-snap-align: start;
 }
-
 
 body > .zoomPanel > .labelsForEveryPage > .label {
   position: relative;
