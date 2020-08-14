@@ -23,6 +23,8 @@ let settings: Settings = {
   invertViewerColor: false,
   sepiaViewerColor: false,
   lineHeight: 1.5,
+  verticalScroll: false,
+  currentFont: 'baskerville-enc',
 };
 
 let handleZoomAnimation = false;
@@ -38,7 +40,7 @@ const recalculateAndScroll = (): void => {
 let pageNumberBtn: HTMLElement | null;
 
 const onBodyScroll = (ev: Event): void => {
-  if (settings.animateEnabled) {
+  if (settings.animateEnabled && !settings.verticalScroll) {
     let { columnWidth } = settings;
     if (!settings.readMode) {
       columnWidth *= 0.75;
@@ -113,6 +115,9 @@ const onWindowLoad = (): void => {
   const sepiaModeButton = document.body.querySelector(
     'body > .buttons > .sepiaModeButton',
   );
+  const verticalScrollButton = document.body.querySelector(
+    'body > .buttons > .verticalScrollButton',
+  );
   
   const updateFontInfo = (): void => {
     document.documentElement.style.setProperty(
@@ -125,6 +130,36 @@ const onWindowLoad = (): void => {
     );
     settings = recalculateColumnConfig(settings, true);
   };
+
+  verticalScrollButton?.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    settings.verticalScroll = !settings.verticalScroll;
+    
+    document.body.className = `viewer epub ${settings.currentFont}${settings.verticalScroll?' vertical':''}`;
+    if (settings.verticalScroll) {
+      document.documentElement.style.setProperty('--animationSpeed', `0s`);
+      document.documentElement.style.overflowY = 'auto';
+      document.documentElement.style.overflowX = 'none';
+      document.documentElement.scrollTo(0,0);      
+      document.body.scrollTo(0,0);
+      setTimeout((): void => {        
+        const pageIndicator = document.body.querySelector(`body > .zoomPanel > .chapterWrapper [data-page="${settings.currentPage}"]`);
+        if (pageIndicator) {
+          console.log(pageIndicator.getBoundingClientRect().top);
+          document.documentElement.scrollTo(0,pageIndicator.getBoundingClientRect().top);
+        }
+      }, 0);
+    } else {      
+      document.documentElement.style.setProperty(
+        '--animationSpeed',
+        `0.5s`,
+      );
+      document.documentElement.style.overflowY = 'hidden';
+      document.documentElement.style.overflowX = 'hidden';
+      settings = recalculateColumnConfig(settings, true);
+    }    
+  });
   fullScreenModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -132,8 +167,7 @@ const onWindowLoad = (): void => {
       document.exitFullscreen();
     } else {
       document.body.requestFullscreen();
-    }
-    
+    }    
   });
   nightModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
@@ -195,8 +229,8 @@ const onWindowLoad = (): void => {
   });
   
   document.body.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();
-    if (settings.animateEnabled) {
+    ev.preventDefault();    
+    if (settings.animateEnabled || settings.verticalScroll) {
       settings.readMode = !settings.readMode;
       if (zoomPanel && buttonsPanel) {
         settings.animateEnabled = false;
@@ -236,7 +270,8 @@ const onWindowLoad = (): void => {
       button?.addEventListener('click', (ev: Event): void => {
         ev.preventDefault();
         ev.stopPropagation();
-        document.body.className = `viewer epub ${button.value}`;
+        settings.currentFont = button.value;
+        document.body.className = `viewer epub ${settings.currentFont}${settings.verticalScroll?' vertical':''}`;
         updateFontInfo();
       });
     });
@@ -266,14 +301,14 @@ const onWindowLoad = (): void => {
               document.documentElement.style.setProperty(
                 '--animationSpeed',
                 `0.5s`,
-              );    
+              );
               document.documentElement.style.setProperty(
                 '--viewerSnapType',
                 `x mandatory`,
               );
               settings.animateEnabled = true;
               document.body.scrollTo(newScrollX, 0);              
-          });          
+          });
         }
       },
       false,

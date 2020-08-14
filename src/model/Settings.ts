@@ -10,4 +10,6 @@ export default interface Settings {
   sepiaViewerColor: boolean;
   scrollFix: number;
   lineHeight: number;
+  verticalScroll: boolean;
+  currentFont: string;
 }
