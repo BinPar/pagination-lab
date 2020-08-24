@@ -25,6 +25,7 @@ let settings: Settings = {
   lineHeight: 1.5,
   verticalScroll: false,
   currentFont: 'baskerville-enc',
+  verticalPageMarkers: [],
 };
 
 let handleZoomAnimation = false;
@@ -55,7 +56,14 @@ const onBodyScroll = (ev: Event): void => {
       pageNumberBtn.innerText = settings.currentPage;
     }
   } else if (settings.animateEnabled) {
-    // TODO: Recalculate Current Page
+    const { scrollTop } = document.scrollingElement || document.body;
+    const currentMarker = settings.verticalPageMarkers.find((item): boolean => scrollTop <= item.top);
+    if (currentMarker) {
+      settings.currentPage = currentMarker.page;
+      if (pageNumberBtn) {
+        pageNumberBtn.innerText = settings.currentPage;
+      } 
+    }
   } else {
     ev.preventDefault();
   }
@@ -154,7 +162,8 @@ const onWindowLoad = (): void => {
             pageIndicator.getBoundingClientRect().top,
           );
         }
-      }, 0);
+        settings = recalculateColumnConfig(settings, true);
+      }, 0);      
     } else {
       document.documentElement.scrollTo(0, 0);
       document.body.scrollTo(0, 0);
@@ -278,7 +287,9 @@ const onWindowLoad = (): void => {
       }
     }
   });
-  document.body.addEventListener('scroll', onBodyScroll);
+
+  document.body.addEventListener('scroll', onBodyScroll);  
+  document.addEventListener('scroll', onBodyScroll);
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then((): void => {

@@ -59,9 +59,23 @@ const recalculateColumnConfig = (
 
   const pagesDict: PageNumberMark[] = [];
   const pagesPerColumn: string[] = [];
+  const verticalPageMarkers: { top: number; page: string }[] = [];
+
   let setScrollTo = 0;
   if (settings.verticalScroll) {
-    // TODO: Store vertical pages marker array
+    const { scrollTop } = document.scrollingElement || document.body;
+    document.body
+      .querySelectorAll('body > .zoomPanel > .chapterWrapper [data-page]')
+      .forEach((item): void => {
+        const element = item as HTMLElement;
+        const rects = element.getClientRects();
+        let top = rects[0].y;
+        top += scrollTop;
+        verticalPageMarkers.push({
+          top,
+          page: element.dataset.page as string,
+        })
+      });
   } else {
     const { scrollLeft } = document.body;
     document.body
@@ -150,6 +164,7 @@ const recalculateColumnConfig = (
   newSettings.columnWidth = totalColumnWidth;
   newSettings.totalColumns = totalColumns;
   newSettings.pagesPerColumn = pagesPerColumn;
+  newSettings.verticalPageMarkers = verticalPageMarkers;
 
   return newSettings;
 };
