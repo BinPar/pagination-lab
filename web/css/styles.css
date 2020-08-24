@@ -20,8 +20,13 @@ body {
 
 body.vertical {
   height: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
   scroll-snap-type: none;
+  overscroll-behavior-y: unset;
+}
+
+::-webkit-scrollbar {
+  width: 2px;
 }
 
 body * {
@@ -156,6 +161,7 @@ body > .zoomPanel > .labelsForEveryPage > .label p {
   text-align: center;
   font-weight: 600;
   line-height: 3em;
+  user-select: none;
 }
 
 body > .buttons {
@@ -186,6 +192,7 @@ body > .buttons button {
   background-color: black;
   color: white;
   outline: none;
+  user-select: none;
 }
 
 @font-face {

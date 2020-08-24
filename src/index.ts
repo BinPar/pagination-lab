@@ -54,6 +54,8 @@ const onBodyScroll = (ev: Event): void => {
     if (pageNumberBtn) {
       pageNumberBtn.innerText = settings.currentPage;
     }
+  } else if (settings.animateEnabled) {
+    // TODO: Recalculate Current Page
   } else {
     ev.preventDefault();
   }
@@ -91,12 +93,9 @@ const onWindowLoad = (): void => {
     'body > .zoomPanel',
   ) as HTMLDivElement;
   const buttonsPanel = document.body.querySelector('body > .buttons');
-
-  
   const fullScreenModeButton = document.body.querySelector(
     'body > .buttons > .fullScreenModeButton',
   );
-
   const increaseFontButton = document.body.querySelector(
     'body > .buttons > .increaseFontButton',
   );
@@ -118,7 +117,7 @@ const onWindowLoad = (): void => {
   const verticalScrollButton = document.body.querySelector(
     'body > .buttons > .verticalScrollButton',
   );
-  
+
   const updateFontInfo = (): void => {
     document.documentElement.style.setProperty(
       '--fontSize',
@@ -135,27 +134,31 @@ const onWindowLoad = (): void => {
     ev.preventDefault();
     ev.stopPropagation();
     settings.verticalScroll = !settings.verticalScroll;
-    
-    document.body.className = `viewer epub ${settings.currentFont}${settings.verticalScroll?' vertical':''}`;
+
+    document.body.className = `viewer epub ${settings.currentFont}${
+      settings.verticalScroll ? ' vertical' : ''
+    }`;
     if (settings.verticalScroll) {
       document.documentElement.style.setProperty('--animationSpeed', `0s`);
       document.documentElement.style.overflowY = 'auto';
-      document.documentElement.style.overflowX = 'none';      
-      document.documentElement.scrollTo(0,0);      
-      document.body.scrollTo(0,0);
-      setTimeout((): void => {        
-        const pageIndicator = document.body.querySelector(`body > .zoomPanel > .chapterWrapper [data-page="${settings.currentPage}"]`);
+      document.documentElement.style.overflowX = 'none';
+      document.documentElement.scrollTo(0, 0);
+      document.body.scrollTo(0, 0);
+      setTimeout((): void => {
+        const pageIndicator = document.body.querySelector(
+          `body > .zoomPanel > .chapterWrapper [data-page="${settings.currentPage}"]`,
+        );
         if (pageIndicator) {
-          document.documentElement.scrollTo(0,pageIndicator.getBoundingClientRect().top);
+          document.documentElement.scrollTo(
+            0,
+            pageIndicator.getBoundingClientRect().top,
+          );
         }
       }, 0);
-    } else {      
-      document.documentElement.scrollTo(0,0);
-      document.body.scrollTo(0,0);
-      document.documentElement.style.setProperty(
-        '--animationSpeed',
-        `0.5s`,
-      );
+    } else {
+      document.documentElement.scrollTo(0, 0);
+      document.body.scrollTo(0, 0);
+      document.documentElement.style.setProperty('--animationSpeed', `0.5s`);
       document.documentElement.style.overflowY = 'hidden';
       document.documentElement.style.overflowX = 'hidden';
       settings = recalculateColumnConfig(settings, true);
@@ -173,7 +176,7 @@ const onWindowLoad = (): void => {
         zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
         buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
       }
-    }    
+    }
   });
   fullScreenModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
@@ -182,7 +185,7 @@ const onWindowLoad = (): void => {
       document.exitFullscreen();
     } else {
       document.body.requestFullscreen();
-    }    
+    }
   });
   nightModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
@@ -192,7 +195,7 @@ const onWindowLoad = (): void => {
       document.documentElement.style.setProperty(
         '--invertViewerColor',
         `${settings.invertViewerColor ? 1 : 0}`,
-      );    
+      );
     }
   });
   sepiaModeButton?.addEventListener('click', (ev: Event): void => {
@@ -203,11 +206,11 @@ const onWindowLoad = (): void => {
       document.documentElement.style.setProperty(
         '--sepiaViewerColor',
         `${settings.sepiaViewerColor ? 1 : 0}`,
-      );    
+      );
       document.documentElement.style.setProperty(
         '--contrastViewerColor',
         `${settings.sepiaViewerColor ? 0.6 : 1}`,
-      );    
+      );
     }
   });
   increaseFontButton?.addEventListener('click', (ev: Event): void => {
@@ -242,15 +245,17 @@ const onWindowLoad = (): void => {
       updateFontInfo();
     }
   });
-  
   document.body.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();    
+    ev.preventDefault();
     if (settings.animateEnabled) {
       settings.readMode = !settings.readMode;
       if (zoomPanel && buttonsPanel) {
         if (!settings.verticalScroll) {
           settings.animateEnabled = false;
-          document.documentElement.style.setProperty('--viewerSnapType', `none`);
+          document.documentElement.style.setProperty(
+            '--viewerSnapType',
+            `none`,
+          );
           if (settings.readMode) {
             const scrollFix = (document.body.scrollLeft * -1) / 3;
             settings.scrollFix = scrollFix;
@@ -288,7 +293,9 @@ const onWindowLoad = (): void => {
         ev.preventDefault();
         ev.stopPropagation();
         settings.currentFont = button.value;
-        document.body.className = `viewer epub ${settings.currentFont}${settings.verticalScroll?' vertical':''}`;
+        document.body.className = `viewer epub ${settings.currentFont}${
+          settings.verticalScroll ? ' vertical' : ''
+        }`;
         updateFontInfo();
       });
     });
@@ -315,24 +322,22 @@ const onWindowLoad = (): void => {
           );
           recalculate();
           window.requestAnimationFrame((): void => {
-              document.documentElement.style.setProperty(
-                '--animationSpeed',
-                `0.5s`,
-              );
-              document.documentElement.style.setProperty(
-                '--viewerSnapType',
-                `x mandatory`,
-              );
-              settings.animateEnabled = true;
-              document.body.scrollTo(newScrollX, 0);              
+            document.documentElement.style.setProperty(
+              '--animationSpeed',
+              `0.5s`,
+            );
+            document.documentElement.style.setProperty(
+              '--viewerSnapType',
+              `x mandatory`,
+            );
+            settings.animateEnabled = true;
+            document.body.scrollTo(newScrollX, 0);
           });
         }
       },
       false,
     );
   });
-
-  
 };
 
 window.addEventListener('load', onWindowLoad);
