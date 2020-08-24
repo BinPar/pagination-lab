@@ -23,6 +23,9 @@ let settings: Settings = {
   invertViewerColor: false,
   sepiaViewerColor: false,
   lineHeight: 1.5,
+  verticalScroll: false,
+  currentFont: 'baskerville-enc',
+  verticalPageMarkers: [],
 };
 
 let handleZoomAnimation = false;
@@ -38,7 +41,7 @@ const recalculateAndScroll = (): void => {
 let pageNumberBtn: HTMLElement | null;
 
 const onBodyScroll = (ev: Event): void => {
-  if (settings.animateEnabled) {
+  if (settings.animateEnabled && !settings.verticalScroll) {
     let { columnWidth } = settings;
     if (!settings.readMode) {
       columnWidth *= 0.75;
@@ -51,6 +54,15 @@ const onBodyScroll = (ev: Event): void => {
     }
     if (pageNumberBtn) {
       pageNumberBtn.innerText = settings.currentPage;
+    }
+  } else if (settings.animateEnabled) {
+    const { scrollTop } = document.scrollingElement || document.body;
+    const currentMarker = settings.verticalPageMarkers.find((item): boolean => scrollTop <= item.top);
+    if (currentMarker) {
+      settings.currentPage = currentMarker.page;
+      if (pageNumberBtn) {
+        pageNumberBtn.innerText = settings.currentPage;
+      } 
     }
   } else {
     ev.preventDefault();
@@ -89,12 +101,9 @@ const onWindowLoad = (): void => {
     'body > .zoomPanel',
   ) as HTMLDivElement;
   const buttonsPanel = document.body.querySelector('body > .buttons');
-
-  
   const fullScreenModeButton = document.body.querySelector(
     'body > .buttons > .fullScreenModeButton',
   );
-
   const increaseFontButton = document.body.querySelector(
     'body > .buttons > .increaseFontButton',
   );
@@ -113,7 +122,10 @@ const onWindowLoad = (): void => {
   const sepiaModeButton = document.body.querySelector(
     'body > .buttons > .sepiaModeButton',
   );
-  
+  const verticalScrollButton = document.body.querySelector(
+    'body > .buttons > .verticalScrollButton',
+  );
+
   const updateFontInfo = (): void => {
     document.documentElement.style.setProperty(
       '--fontSize',
@@ -125,6 +137,56 @@ const onWindowLoad = (): void => {
     );
     settings = recalculateColumnConfig(settings, true);
   };
+
+  verticalScrollButton?.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    settings.verticalScroll = !settings.verticalScroll;
+
+    document.body.className = `viewer epub ${settings.currentFont}${
+      settings.verticalScroll ? ' vertical' : ''
+    }`;
+    if (settings.verticalScroll) {
+      document.documentElement.style.setProperty('--animationSpeed', `0s`);
+      document.documentElement.style.overflowY = 'auto';
+      document.documentElement.style.overflowX = 'none';
+      document.documentElement.scrollTo(0, 0);
+      document.body.scrollTo(0, 0);
+      setTimeout((): void => {
+        const pageIndicator = document.body.querySelector(
+          `body > .zoomPanel > .chapterWrapper [data-page="${settings.currentPage}"]`,
+        );
+        if (pageIndicator) {
+          document.documentElement.scrollTo(
+            0,
+            pageIndicator.getBoundingClientRect().top,
+          );
+        }
+        settings = recalculateColumnConfig(settings, true);
+      }, 0);      
+    } else {
+      document.documentElement.scrollTo(0, 0);
+      document.body.scrollTo(0, 0);
+      document.documentElement.style.setProperty('--animationSpeed', `0.5s`);
+      document.documentElement.style.overflowY = 'hidden';
+      document.documentElement.style.overflowX = 'hidden';
+      settings = recalculateColumnConfig(settings, true);
+      settings.readMode = true;
+      if (zoomPanel && buttonsPanel) {
+        settings.animateEnabled = false;
+        document.documentElement.style.setProperty('--viewerSnapType', `none`);
+        const scrollFix = (document.body.scrollLeft * -1) / 3;
+        settings.scrollFix = scrollFix;
+        document.documentElement.style.setProperty(
+          '--horizontalScrollFix',
+          `${settings.scrollFix}px`,
+        );
+        handleZoomAnimation = true;
+        zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
+        buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
+      }
+    }
+  });
   fullScreenModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -133,7 +195,6 @@ const onWindowLoad = (): void => {
     } else {
       document.body.requestFullscreen();
     }
-    
   });
   nightModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
@@ -143,7 +204,7 @@ const onWindowLoad = (): void => {
       document.documentElement.style.setProperty(
         '--invertViewerColor',
         `${settings.invertViewerColor ? 1 : 0}`,
-      );    
+      );
     }
   });
   sepiaModeButton?.addEventListener('click', (ev: Event): void => {
@@ -154,17 +215,17 @@ const onWindowLoad = (): void => {
       document.documentElement.style.setProperty(
         '--sepiaViewerColor',
         `${settings.sepiaViewerColor ? 1 : 0}`,
-      );    
+      );
       document.documentElement.style.setProperty(
         '--contrastViewerColor',
         `${settings.sepiaViewerColor ? 0.6 : 1}`,
-      );    
+      );
     }
   });
   increaseFontButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (settings.currentFontSize < 50) {
+    if (settings.currentFontSize < 32) {
       settings.currentFontSize += 2;
       updateFontInfo();
     }
@@ -193,36 +254,42 @@ const onWindowLoad = (): void => {
       updateFontInfo();
     }
   });
-  
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     if (settings.animateEnabled) {
       settings.readMode = !settings.readMode;
       if (zoomPanel && buttonsPanel) {
-        settings.animateEnabled = false;
-        document.documentElement.style.setProperty('--viewerSnapType', `none`);
-        if (settings.readMode) {
-          const scrollFix = (document.body.scrollLeft * -1) / 3;
-          settings.scrollFix = scrollFix;
+        if (!settings.verticalScroll) {
+          settings.animateEnabled = false;
           document.documentElement.style.setProperty(
-            '--horizontalScrollFix',
-            `${settings.scrollFix}px`,
+            '--viewerSnapType',
+            `none`,
           );
-        } else {
-          const scrollFix = document.body.scrollLeft * 0.25;
-          settings.scrollFix = scrollFix;
-          document.documentElement.style.setProperty(
-            '--horizontalScrollFix',
-            `${settings.scrollFix}px`,
-          );
+          if (settings.readMode) {
+            const scrollFix = (document.body.scrollLeft * -1) / 3;
+            settings.scrollFix = scrollFix;
+            document.documentElement.style.setProperty(
+              '--horizontalScrollFix',
+              `${settings.scrollFix}px`,
+            );
+          } else {
+            const scrollFix = document.body.scrollLeft * 0.25;
+            settings.scrollFix = scrollFix;
+            document.documentElement.style.setProperty(
+              '--horizontalScrollFix',
+              `${settings.scrollFix}px`,
+            );
+          }
+          handleZoomAnimation = true;
+          zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
         }
-        handleZoomAnimation = true;
-        zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
         buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
       }
     }
   });
-  document.body.addEventListener('scroll', onBodyScroll);
+
+  document.body.addEventListener('scroll', onBodyScroll);  
+  document.addEventListener('scroll', onBodyScroll);
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then((): void => {
@@ -236,7 +303,10 @@ const onWindowLoad = (): void => {
       button?.addEventListener('click', (ev: Event): void => {
         ev.preventDefault();
         ev.stopPropagation();
-        document.body.className = `viewer epub ${button.value}`;
+        settings.currentFont = button.value;
+        document.body.className = `viewer epub ${settings.currentFont}${
+          settings.verticalScroll ? ' vertical' : ''
+        }`;
         updateFontInfo();
       });
     });
@@ -261,20 +331,19 @@ const onWindowLoad = (): void => {
             '--horizontalScrollFix',
             `${settings.scrollFix}px`,
           );
-
           recalculate();
-          setTimeout((): void => {
+          window.requestAnimationFrame((): void => {
             document.documentElement.style.setProperty(
               '--animationSpeed',
               `0.5s`,
             );
-            settings.animateEnabled = true;
             document.documentElement.style.setProperty(
               '--viewerSnapType',
               `x mandatory`,
             );
+            settings.animateEnabled = true;
             document.body.scrollTo(newScrollX, 0);
-          }, 0);
+          });
         }
       },
       false,
