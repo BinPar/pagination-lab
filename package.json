@@ -6,11 +6,12 @@
     "node": ">=10"
   },
   "scripts": {
+    "dev": "concurrently --kill-others \"npm run build-dev\" \"npm run server-dev\"",
     "build": "tsc;webpack --config webpack.config.prod.js",
     "build-dev": "nodemon --config nodemon.json --exec 'tsc;webpack --config webpack.config.js'",
+    "server-dev": "NODE_ENV=development ts-node-dev --debug --respawn --transpileOnly ./src/server.ts",
     "test": "jest",
     "test-dev": "NODE_ENV=development npx jest --watchAll",
-    "dev": "NODE_ENV=development ts-node-dev --debug --respawn --transpileOnly ./src/server.ts",
     "start": "node ./dist/index.js",
     "lint": "npx eslint --config ./.eslintrc src/**/*.ts"
   },
@@ -38,6 +39,7 @@
     "@types/node": "^12.6.8",
     "@typescript-eslint/eslint-plugin": "^1.11.0",
     "@typescript-eslint/parser": "^1.11.0",
+    "concurrently": "^5.3.0",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.1",
     "eslint-config-prettier": "^6.0.0",

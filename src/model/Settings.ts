@@ -13,4 +13,5 @@ export default interface Settings {
   lineHeight: number;
   verticalScroll: boolean;
   currentFont: string;
-}
+  handleZoomAnimation: boolean;
+};

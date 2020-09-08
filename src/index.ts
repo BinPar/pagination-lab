@@ -1,68 +1,31 @@
 import recalculateColumnConfig from './recalculateColumnConfig';
-import Settings from './model/Settings';
-
-interface FontFaceSet {
-  readonly ready: Promise<FontFaceSet>;
-}
-
-declare global {
-  interface Document {
-    fonts: FontFaceSet;
-  }
-}
-
-let settings: Settings = {
-  currentFontSize: 18,
-  columnWidth: 0,
-  totalColumns: 0,
-  scrollFix: 0,
-  currentPage: '',
-  pagesPerColumn: [],
-  readMode: true,
-  animateEnabled: true,
-  invertViewerColor: false,
-  sepiaViewerColor: false,
-  lineHeight: 1.5,
-  verticalScroll: false,
-  currentFont: 'baskerville-enc',
-  verticalPageMarkers: [],
-};
-
-let handleZoomAnimation = false;
-
-const recalculate = (): void => {
-  settings = recalculateColumnConfig(settings, false);
-};
-
-const recalculateAndScroll = (): void => {
-  settings = recalculateColumnConfig(settings, true);
-};
+import { getSettings, updateSettings } from './settings';
 
 let pageNumberBtn: HTMLElement | null;
 
 const onBodyScroll = (ev: Event): void => {
-  if (settings.animateEnabled && !settings.verticalScroll) {
-    let { columnWidth } = settings;
-    if (!settings.readMode) {
+  if (getSettings().animateEnabled && !getSettings().verticalScroll) {
+    let { columnWidth } = getSettings();
+    if (!getSettings().readMode) {
       columnWidth *= 0.75;
     }
     const currentColumn = Math.round(
-      (document.body.scrollLeft - settings.scrollFix) / columnWidth,
+      (document.body.scrollLeft - getSettings().scrollFix) / columnWidth,
     );
-    if (currentColumn < settings.pagesPerColumn.length) {
-      settings.currentPage = settings.pagesPerColumn[currentColumn];
+    if (currentColumn < getSettings().pagesPerColumn.length) {
+      updateSettings({ currentPage: getSettings().pagesPerColumn[currentColumn] });
     }
     if (pageNumberBtn) {
-      pageNumberBtn.innerText = settings.currentPage;
+      pageNumberBtn.innerText = getSettings().currentPage;
     }
-  } else if (settings.animateEnabled) {
+  } else if (getSettings().animateEnabled) {
     const { scrollTop } = document.scrollingElement || document.body;
-    const currentMarker = settings.verticalPageMarkers.find((item): boolean => scrollTop <= item.top);
+    const currentMarker = getSettings().verticalPageMarkers.find((item): boolean => scrollTop <= item.top);
     if (currentMarker) {
-      settings.currentPage = currentMarker.page;
+      getSettings().currentPage = currentMarker.page;
       if (pageNumberBtn) {
-        pageNumberBtn.innerText = settings.currentPage;
-      } 
+        pageNumberBtn.innerText = getSettings().currentPage;
+      }
     }
   } else {
     ev.preventDefault();
@@ -72,7 +35,7 @@ const onBodyScroll = (ev: Event): void => {
 window.addEventListener(
   'touchmove',
   (ev: TouchEvent): void => {
-    if (!settings.animateEnabled || ev.targetTouches.length > 1) {
+    if (!getSettings().animateEnabled || ev.targetTouches.length > 1) {
       ev.preventDefault();
       ev.stopImmediatePropagation();
     }
@@ -95,7 +58,7 @@ const onWindowLoad = (): void => {
   pageNumberBtn = document.getElementById('pageNumber');
   document.documentElement.style.setProperty(
     '--fontSize',
-    `${settings.currentFontSize}px`,
+    `${getSettings().currentFontSize}px`,
   );
   const zoomPanel = document.body.querySelector(
     'body > .zoomPanel',
@@ -129,24 +92,23 @@ const onWindowLoad = (): void => {
   const updateFontInfo = (): void => {
     document.documentElement.style.setProperty(
       '--fontSize',
-      `${settings.currentFontSize}px`,
+      `${getSettings().currentFontSize}px`,
     );
     document.documentElement.style.setProperty(
       '--lineHeight',
-      `${settings.lineHeight}em`,
+      `${getSettings().lineHeight}em`,
     );
-    settings = recalculateColumnConfig(settings, true);
+    recalculateColumnConfig(true);
   };
 
   verticalScrollButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    settings.verticalScroll = !settings.verticalScroll;
-
-    document.body.className = `viewer epub ${settings.currentFont}${
-      settings.verticalScroll ? ' vertical' : ''
-    }`;
-    if (settings.verticalScroll) {
+    updateSettings({ verticalScroll: !getSettings().verticalScroll });
+    document.body.className = `viewer epub ${getSettings().currentFont}${
+      getSettings().verticalScroll ? ' vertical' : ''
+      }`;
+    if (getSettings().verticalScroll) {
       document.documentElement.style.setProperty('--animationSpeed', `0s`);
       document.documentElement.style.overflowY = 'auto';
       document.documentElement.style.overflowX = 'none';
@@ -154,7 +116,7 @@ const onWindowLoad = (): void => {
       document.body.scrollTo(0, 0);
       setTimeout((): void => {
         const pageIndicator = document.body.querySelector(
-          `body > .zoomPanel > .chapterWrapper [data-page="${settings.currentPage}"]`,
+          `body > .zoomPanel > .chapterWrapper [data-page="${getSettings().currentPage}"]`,
         );
         if (pageIndicator) {
           document.documentElement.scrollTo(
@@ -162,28 +124,27 @@ const onWindowLoad = (): void => {
             pageIndicator.getBoundingClientRect().top,
           );
         }
-        settings = recalculateColumnConfig(settings, true);
-      }, 0);      
+        recalculateColumnConfig(true);
+      }, 0);
     } else {
       document.documentElement.scrollTo(0, 0);
       document.body.scrollTo(0, 0);
       document.documentElement.style.setProperty('--animationSpeed', `0.5s`);
       document.documentElement.style.overflowY = 'hidden';
       document.documentElement.style.overflowX = 'hidden';
-      settings = recalculateColumnConfig(settings, true);
-      settings.readMode = true;
+      recalculateColumnConfig(true);
+      updateSettings({ readMode: true });
       if (zoomPanel && buttonsPanel) {
-        settings.animateEnabled = false;
         document.documentElement.style.setProperty('--viewerSnapType', `none`);
         const scrollFix = (document.body.scrollLeft * -1) / 3;
-        settings.scrollFix = scrollFix;
+        updateSettings({ scrollFix, animateEnabled: false });
         document.documentElement.style.setProperty(
           '--horizontalScrollFix',
-          `${settings.scrollFix}px`,
+          `${getSettings().scrollFix}px`,
         );
-        handleZoomAnimation = true;
-        zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
-        buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
+        updateSettings({handleZoomAnimation: true});
+        zoomPanel.className = `zoomPanel${getSettings().readMode ? ' zoom' : ''}`;
+        buttonsPanel.className = `buttons${getSettings().readMode ? ' zoom' : ''}`;
       }
     }
   });
@@ -199,101 +160,113 @@ const onWindowLoad = (): void => {
   nightModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (!handleZoomAnimation) {
-      settings.invertViewerColor = !settings.invertViewerColor;
+    if (!getSettings().handleZoomAnimation) {
+      let { invertViewerColor } = getSettings();
+      invertViewerColor = !invertViewerColor;
+      updateSettings({ invertViewerColor });
       document.documentElement.style.setProperty(
         '--invertViewerColor',
-        `${settings.invertViewerColor ? 1 : 0}`,
+        `${invertViewerColor ? 1 : 0}`,
       );
     }
   });
   sepiaModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (!handleZoomAnimation) {
-      settings.sepiaViewerColor = !settings.sepiaViewerColor;
+    if (!getSettings().handleZoomAnimation) {
+      let { sepiaViewerColor } = getSettings();
+      sepiaViewerColor = !sepiaViewerColor;
+      updateSettings({ sepiaViewerColor });
       document.documentElement.style.setProperty(
         '--sepiaViewerColor',
-        `${settings.sepiaViewerColor ? 1 : 0}`,
+        `${sepiaViewerColor ? 1 : 0}`,
       );
       document.documentElement.style.setProperty(
         '--contrastViewerColor',
-        `${settings.sepiaViewerColor ? 0.6 : 1}`,
+        `${sepiaViewerColor ? 0.6 : 1}`,
       );
     }
   });
   increaseFontButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (settings.currentFontSize < 32) {
-      settings.currentFontSize += 2;
+    let { currentFontSize } = getSettings();
+    if (currentFontSize < 32) {
+      currentFontSize += 2;
+      updateSettings({ currentFontSize });
       updateFontInfo();
     }
   });
   decreaseFontButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (settings.currentFontSize > 8) {
-      settings.currentFontSize -= 2;
+    let { currentFontSize } = getSettings();
+    if (currentFontSize > 8) {
+      currentFontSize -= 2;
+      updateSettings({ currentFontSize });
       updateFontInfo();
     }
   });
   increaseLineHeight?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (settings.lineHeight < 2) {
-      settings.lineHeight += 0.1;
+    let { lineHeight } = getSettings();
+    if (lineHeight < 2) {
+      lineHeight += 0.1;
+      updateSettings({ lineHeight });
       updateFontInfo();
     }
   });
   decreaseLineHeight?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (settings.lineHeight > 1) {
-      settings.lineHeight -= 0.1;
+    let { lineHeight } = getSettings();
+    if (lineHeight > 1) {
+      lineHeight -= 0.1;
+      updateSettings({ lineHeight });
       updateFontInfo();
     }
   });
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
-    if (settings.animateEnabled) {
-      settings.readMode = !settings.readMode;
+    if (getSettings().animateEnabled) {
+      updateSettings({ readMode: !getSettings().readMode });
       if (zoomPanel && buttonsPanel) {
-        if (!settings.verticalScroll) {
-          settings.animateEnabled = false;
+        if (!getSettings().verticalScroll) {
+          updateSettings({ animateEnabled: false });
           document.documentElement.style.setProperty(
             '--viewerSnapType',
             `none`,
           );
-          if (settings.readMode) {
+          if (getSettings().readMode) {
             const scrollFix = (document.body.scrollLeft * -1) / 3;
-            settings.scrollFix = scrollFix;
+            updateSettings({ scrollFix });
             document.documentElement.style.setProperty(
               '--horizontalScrollFix',
-              `${settings.scrollFix}px`,
+              `${getSettings().scrollFix}px`,
             );
           } else {
             const scrollFix = document.body.scrollLeft * 0.25;
-            settings.scrollFix = scrollFix;
+            updateSettings({ scrollFix });
             document.documentElement.style.setProperty(
               '--horizontalScrollFix',
-              `${settings.scrollFix}px`,
+              `${getSettings().scrollFix}px`,
             );
           }
-          handleZoomAnimation = true;
-          zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
+          updateSettings({handleZoomAnimation: true});
+          zoomPanel.className = `zoomPanel${getSettings().readMode ? ' zoom' : ''}`;
         }
-        buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
+        buttonsPanel.className = `buttons${getSettings().readMode ? ' zoom' : ''}`;
       }
     }
   });
 
-  document.body.addEventListener('scroll', onBodyScroll);  
+  document.body.addEventListener('scroll', onBodyScroll);
   document.addEventListener('scroll', onBodyScroll);
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then((): void => {
-      recalculateAndScroll();
+      recalculateColumnConfig(true);
     });
   }
 
@@ -303,10 +276,10 @@ const onWindowLoad = (): void => {
       button?.addEventListener('click', (ev: Event): void => {
         ev.preventDefault();
         ev.stopPropagation();
-        settings.currentFont = button.value;
-        document.body.className = `viewer epub ${settings.currentFont}${
-          settings.verticalScroll ? ' vertical' : ''
-        }`;
+        updateSettings({ currentFont: button.value});
+        document.body.className = `viewer epub ${getSettings().currentFont}${
+          getSettings().verticalScroll ? ' vertical' : ''
+          }`;
         updateFontInfo();
       });
     });
@@ -321,17 +294,17 @@ const onWindowLoad = (): void => {
     zoomPanel.addEventListener(
       eventName,
       (): void => {
-        if (handleZoomAnimation) {
-          handleZoomAnimation = false;
-          const newScrollX = document.body.scrollLeft - settings.scrollFix;
+        if (getSettings().handleZoomAnimation) {
+          updateSettings({handleZoomAnimation: false});
+          const newScrollX = document.body.scrollLeft - getSettings().scrollFix;
           document.body.scrollTo(newScrollX, 0);
-          settings.scrollFix = 0;
+          updateSettings({scrollFix: 0});
           document.documentElement.style.setProperty('--animationSpeed', `0s`);
           document.documentElement.style.setProperty(
             '--horizontalScrollFix',
-            `${settings.scrollFix}px`,
+            `${getSettings().scrollFix}px`,
           );
-          recalculate();
+          recalculateColumnConfig(false);
           window.requestAnimationFrame((): void => {
             document.documentElement.style.setProperty(
               '--animationSpeed',
@@ -341,7 +314,7 @@ const onWindowLoad = (): void => {
               '--viewerSnapType',
               `x mandatory`,
             );
-            settings.animateEnabled = true;
+            updateSettings({animateEnabled: true});
             document.body.scrollTo(newScrollX, 0);
           });
         }
@@ -352,4 +325,6 @@ const onWindowLoad = (): void => {
 };
 
 window.addEventListener('load', onWindowLoad);
-window.addEventListener('resize', recalculateAndScroll);
+window.addEventListener('resize', (): void => {
+  recalculateColumnConfig(true);
+});
