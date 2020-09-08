@@ -2,8 +2,8 @@ import recalculateColumnConfig from './recalculateColumnConfig';
 import { getSettings, updateSettings } from './settings';
 import getDomUI from './getDomUI';
 import setupGeneralEvents from './setupGeneralEvents';
-import updateFontInfo from './updateFontInfo';
 import setupButtonsEvents from './setupButtonsEvents';
+import setupSelection from './setupSelection';
 
 /**
  * All the sistem is setup when the window loads
@@ -12,7 +12,7 @@ const onWindowLoad = (): void => {
   const domUI = getDomUI();
   setupGeneralEvents();
   setupButtonsEvents();
-
+  setupSelection();
   document.documentElement.style.setProperty(
     '--fontSize',
     `${getSettings().currentFontSize}px`,
@@ -92,8 +92,9 @@ const onWindowLoad = (): void => {
           );
           recalculateColumnConfig(false);
           /**
-           * If we wait to the next screen render frame it avoids the visual jump on the scroll
-           * works impresibly well 
+           * If we wait to the next screen render frame: 
+           * it avoids the visual jump on the scroll
+           * works impresibly well!!!
            */
           window.requestAnimationFrame((): void => {
             document.documentElement.style.setProperty(

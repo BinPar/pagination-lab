@@ -49,9 +49,10 @@ body > .zoomPanel iframe {
   filter: invert(var(--invertViewerColor, 0));
 }
 
-.backgroundPageColor {
+.backgroundPageColor {  
   position: fixed;
   background-color: white;
+  cursor: drag;
   left: 0px;
   top: 0px;
   width: 100vw;
@@ -74,7 +75,7 @@ body.vertical > .zoomPanel.zoom {
   transform: translateX(0) translateY(-1em) scale(1);
 }
 
-body > .zoomPanel > .chapterWrapper {
+body > .zoomPanel > .chapterWrapper {  
   column-width: 25em;
   padding: 2em 36px;
   column-rule: 1px solid #eee;
@@ -84,6 +85,7 @@ body > .zoomPanel > .chapterWrapper {
   height: calc(var(--vh, 100vh) - 2em);
   hyphens: auto;
   clear: both;
+  cursor: grab;
 }
 
 body.vertical > .zoomPanel > .chapterWrapper {
