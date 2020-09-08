@@ -5,10 +5,11 @@ import setupGeneralEvents from './setupGeneralEvents';
 import updateFontInfo from './updateFontInfo';
 import setupButtonsEvents from './setupButtonsEvents';
 
+/**
+ * All the sistem is setup when the window loads
+ */
 const onWindowLoad = (): void => {
-  
   const domUI = getDomUI();
-
   setupGeneralEvents();
   setupButtonsEvents();
 
@@ -17,6 +18,9 @@ const onWindowLoad = (): void => {
     `${getSettings().currentFontSize}px`,
   );
 
+  /**
+   * The click togles the mode (read mode or buttons)
+   */
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     if (getSettings().animateEnabled) {
@@ -51,26 +55,21 @@ const onWindowLoad = (): void => {
     }
   });
 
+  /**
+   * When a new font is loaded we need to recalc the colum configuration
+   */
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then((): void => {
       recalculateColumnConfig(true);
+    }).catch((err): void => {
+      // eslint-disable-next-line no-console
+      console.error(err);
     });
   }
 
-  document.body
-    .querySelectorAll<HTMLButtonElement>('body > .buttons > .selectTypography')
-    .forEach((button): void => {
-      button?.addEventListener('click', (ev: Event): void => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        updateSettings({ currentFont: button.value });
-        document.body.className = `viewer epub ${getSettings().currentFont}${
-          getSettings().verticalScroll ? ' vertical' : ''
-          }`;
-        updateFontInfo();
-      });
-    });
-
+  /**
+   * Events to detect when the zoom animation is ended
+   */
   [
     'webkitTransitionEnd',
     'otransitionend',
@@ -92,6 +91,10 @@ const onWindowLoad = (): void => {
             `${getSettings().scrollFix}px`,
           );
           recalculateColumnConfig(false);
+          /**
+           * If we wait to the next screen render frame it avoids the visual jump on the scroll
+           * works impresibly well 
+           */
           window.requestAnimationFrame((): void => {
             document.documentElement.style.setProperty(
               '--animationSpeed',
@@ -114,7 +117,14 @@ const onWindowLoad = (): void => {
   }
 };
 
-window.addEventListener('load', onWindowLoad);
+/**
+ * We need to recalc the columns on resize
+ */
 window.addEventListener('resize', (): void => {
   recalculateColumnConfig(true);
 });
+
+/**
+ * Main entry point
+ */
+window.addEventListener('load', onWindowLoad);

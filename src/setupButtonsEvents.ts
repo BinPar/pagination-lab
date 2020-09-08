@@ -3,9 +3,15 @@ import recalculateColumnConfig from './recalculateColumnConfig';
 import getDomUI from './getDomUI';
 import updateFontInfo from './updateFontInfo';
 
+/**
+ * Setups all the buttons actions
+ */
 const setupButtonsEvents = (): void => {
   const domUI = getDomUI();
 
+  /**
+   * Vertical / horizontal reading togle
+   */
   domUI.verticalScrollButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -53,6 +59,10 @@ const setupButtonsEvents = (): void => {
       }
     }
   });
+
+  /**
+   * Full Screen Mode
+   */
   domUI.fullScreenModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -62,6 +72,10 @@ const setupButtonsEvents = (): void => {
       document.body.requestFullscreen();
     }
   });
+
+  /**
+   * Night Mode Toggle
+   */
   domUI.nightModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -75,6 +89,10 @@ const setupButtonsEvents = (): void => {
       );
     }
   });
+
+  /**
+   * Sepia Mode Toggle
+   */
   domUI.sepiaModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -92,6 +110,10 @@ const setupButtonsEvents = (): void => {
       );
     }
   });
+
+  /**
+   * Increase font size
+   */
   domUI.increaseFontButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -102,6 +124,10 @@ const setupButtonsEvents = (): void => {
       updateFontInfo();
     }
   });
+
+  /**
+   * Decrease font size
+   */
   domUI.decreaseFontButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -112,6 +138,10 @@ const setupButtonsEvents = (): void => {
       updateFontInfo();
     }
   });
+
+  /**
+   * Increase line height
+   */
   domUI.increaseLineHeight?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -122,6 +152,10 @@ const setupButtonsEvents = (): void => {
       updateFontInfo();
     }
   });
+
+  /**
+   * Decrease line height
+   */
   domUI.decreaseLineHeight?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -132,6 +166,24 @@ const setupButtonsEvents = (): void => {
       updateFontInfo();
     }
   });
+
+  /**
+   * Typography selection
+   */
+  document.body
+    .querySelectorAll<HTMLButtonElement>('body > .buttons > .selectTypography')
+    .forEach((button): void => {
+      button?.addEventListener('click', (ev: Event): void => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        updateSettings({ currentFont: button.value });
+        document.body.className = `viewer epub ${getSettings().currentFont}${
+          getSettings().verticalScroll ? ' vertical' : ''
+          }`;
+        updateFontInfo();
+      });
+    });
+
 }
 
 export default setupButtonsEvents;

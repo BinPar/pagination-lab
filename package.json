@@ -9,10 +9,10 @@
     "dev": "concurrently --kill-others \"npm run build-dev\" \"npm run server-dev\"",
     "build": "tsc;webpack --config webpack.config.prod.js",
     "build-dev": "nodemon --config nodemon.json --exec 'tsc;webpack --config webpack.config.js'",
-    "server-dev": "NODE_ENV=development ts-node-dev --debug --respawn --transpileOnly ./src/server.ts",
+    "server-dev": "NODE_ENV=development ts-node-dev --debug --respawn --transpileOnly ./src/server/index.ts",
     "test": "jest",
     "test-dev": "NODE_ENV=development npx jest --watchAll",
-    "start": "node ./dist/index.js",
+    "start": "node ./dist/server/index.js",
     "lint": "npx eslint --config ./.eslintrc src/**/*.ts"
   },
   "repository": {
