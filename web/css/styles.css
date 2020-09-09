@@ -86,6 +86,7 @@ body > .zoomPanel > .chapterWrapper {
   hyphens: auto;
   clear: both;
   cursor: grab;
+  user-select: none;
 }
 
 body.vertical > .zoomPanel > .chapterWrapper {
