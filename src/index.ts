@@ -6,7 +6,7 @@ import setupButtonsEvents from './setupButtonsEvents';
 import setupSelection from './setupSelection';
 
 /**
- * All the sistem is setup when the window loads
+ * All the system is setup when the window loads
  */
 const onWindowLoad = (): void => {
   const domUI = getDomUI();
@@ -19,7 +19,7 @@ const onWindowLoad = (): void => {
   );
 
   /**
-   * The click togles the mode (read mode or buttons)
+   * The click toggles the mode (read mode or buttons)
    */
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
@@ -56,7 +56,7 @@ const onWindowLoad = (): void => {
   });
 
   /**
-   * When a new font is loaded we need to recalc the colum configuration
+   * When a new font is loaded we need to recalculate the colum configuration
    */
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then((): void => {
@@ -94,7 +94,7 @@ const onWindowLoad = (): void => {
           /**
            * If we wait to the next screen render frame: 
            * it avoids the visual jump on the scroll
-           * works impresibly well!!!
+           * works really well!!!
            */
           window.requestAnimationFrame((): void => {
             document.documentElement.style.setProperty(
@@ -119,7 +119,7 @@ const onWindowLoad = (): void => {
 };
 
 /**
- * We need to recalc the columns on resize
+ * We need to recalculate the columns on resize
  */
 window.addEventListener('resize', (): void => {
   recalculateColumnConfig(true);

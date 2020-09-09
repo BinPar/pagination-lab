@@ -21,6 +21,7 @@ const selectWordFromPoint = (ev: MouseEvent): Range | null => {
       selection.addRange(range);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (selection as any).modify('move', 'backward', 'word');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (selection as any).modify('extend', 'forward', 'word');
       result = selection.getRangeAt(0);
       selection.removeAllRanges();

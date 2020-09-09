@@ -10,7 +10,7 @@ const setupButtonsEvents = (): void => {
   const domUI = getDomUI();
 
   /**
-   * Vertical / horizontal reading togle
+   * Vertical / horizontal reading toggle
    */
   domUI.verticalScrollButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();

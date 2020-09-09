@@ -1,7 +1,7 @@
 import { getSettings } from './settings';
 import clearSelection from './clearSelection';
 import selectWordFromPoint from './selectWordFromPoint';
-import drawCurrentSeletion from './drawCurrentSeletion';
+import drawCurrentSelection from './drawCurrentSelection';
 
 /**
  * Setups the text selection
@@ -31,7 +31,7 @@ const setupSelection = (): void => {
         );
       } else if (event.button === 2) {
         currentSelection = selectWordFromPoint(event);     
-        drawCurrentSeletion(currentSelection);
+        drawCurrentSelection(currentSelection);
       }
     });
 

@@ -1,3 +1,6 @@
+/**
+ * Clears current window text selection
+ */
 const clearSelection = (): void => {
   if (window && window.getSelection) {
     const selection = window.getSelection();

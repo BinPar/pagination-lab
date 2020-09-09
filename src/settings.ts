@@ -1,7 +1,7 @@
 import Settings from './model/Settings';
 
 /**
- * Viwewer defauilt settings
+ * Viewer default settings
  */
 const initialSettings: Settings = {
   currentFontSize: 18,

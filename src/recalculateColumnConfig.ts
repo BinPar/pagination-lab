@@ -1,14 +1,11 @@
 import PageNumberMark from './model/PageNumberMark';
 import { getSettings, updateSettings } from './settings';
 
-const recalculateColumnConfig = (
-  updateScroll = false,
-): void => {
-  const newSettings = { ...getSettings() };
-  const labelsContainer = document.body.querySelector(
-    'body > .zoomPanel > .labelsForEveryPage',
-  );
-  const pageSnapsContainer = document.body.querySelector('body > .pageSnaps');
+
+/**
+ * Removes all labels and page snaps
+ */
+const clearPaginationContents = (): void => {
   document.body
     .querySelectorAll('body > .zoomPanel >.labelsForEveryPage > .label')
     .forEach((label): void => {
@@ -20,9 +17,29 @@ const recalculateColumnConfig = (
     .forEach((label): void => {
       label.remove();
     });
+}
+
+/**
+ * Recalculates all the pagination information
+ * @param updateScroll Updates the scroll position to maintain the current reading point
+ */
+const recalculateColumnConfig = (
+  updateScroll = false,
+): void => {
+  const newSettings = { ...getSettings() };
+
+  const labelsContainer = document.body.querySelector(
+    'body > .zoomPanel > .labelsForEveryPage',
+  );
+  const pageSnapsContainer = document.body.querySelector('body > .pageSnaps');
+  clearPaginationContents();
 
   const windowWidth = window.innerWidth;
   const vh = window.innerHeight;
+  
+  /**
+   * Set the general style properties
+   */
   document.documentElement.style.setProperty('--totalChapterWidth', '0');
   document.documentElement.style.setProperty('--vh', `${vh}px`);
   document.documentElement.style.setProperty('--windowWidth', `${0}px`);
@@ -62,6 +79,9 @@ const recalculateColumnConfig = (
 
   let setScrollTo = 0;
   if (getSettings().verticalScroll) {
+    /**
+     * Vertical scroll: really easy setup
+     */
     const { scrollTop } = document.scrollingElement || document.body;
     document.body
       .querySelectorAll('body > .zoomPanel > .chapterWrapper [data-page]')
@@ -76,7 +96,13 @@ const recalculateColumnConfig = (
         })
       });
   } else {
+    /**
+     * Horizontal scroll: pagination mode (the complex way)
+     */
     const { scrollLeft } = document.body;
+
+    // We precalculate a dictionary for the pages based on the
+    // left position of each column
     document.body
       .querySelectorAll('body > .zoomPanel > .chapterWrapper [data-page]')
       .forEach((item): void => {
@@ -97,7 +123,8 @@ const recalculateColumnConfig = (
           });
         }
       });
-
+      
+    // Set the current page to the first or the one in the settings
     let currentPage = pagesDict.length ? pagesDict[0].page : '';
     let nextPage = '';
     if (newSettings.currentPage === '') {
@@ -106,12 +133,18 @@ const recalculateColumnConfig = (
 
     let pageSet = false;
     setScrollTo = scrollingElement.scrollLeft;
+
+    // Loops the columns generating all the additional elements required:
+    // labels, scrollSnaps, etc.    
     for (let column = 1; column <= totalColumns; column++) {
       let relativeColumnWidth = totalColumnWidth;
       if (!getSettings().readMode) {
         relativeColumnWidth *= 0.75;
       }
       const maxLeft = column * totalColumnWidth;
+
+      // Sets "setScrollTo" to the position of the currentPage
+      // the logic here is more complex than you will expect
       if (column === 1 || column > totalColumns - 1) {
         currentPage = '';
       } else if (pagesDict.length && pagesDict[0].left < maxLeft) {
@@ -132,8 +165,9 @@ const recalculateColumnConfig = (
       }
       if (currentPage === '-') {
         currentPage = '';
-      }
+      }      
       pagesPerColumn.push(currentPage);
+      // Additional DOM elements creation
       const columnDiv = document.createElement('div');
       columnDiv.className = 'label';
       const label = document.createElement('p');
@@ -156,9 +190,13 @@ const recalculateColumnConfig = (
       currentPage = nextPage;
     }
   }
+
+  // Update the scroll position
   if (updateScroll) {
     document.body.scrollTo(setScrollTo, 0);
   }
+
+  // Update the settings
   newSettings.columnWidth = totalColumnWidth;
   newSettings.totalColumns = totalColumns;
   newSettings.pagesPerColumn = pagesPerColumn;

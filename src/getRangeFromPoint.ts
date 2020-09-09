@@ -2,9 +2,9 @@
 
 /**
  * This is crazy... the selection from point is not standard jet
- * it took some time to figure out how to do it in the diferent
- * browsers (old scool JS) but I think that it covers every broswer 
- * (at least for the Bi-Books needs), if anywone detects any improvemenet
+ * it took some time to figure out how to do it in the different
+ * browsers (old scroll JS) but I think that it covers every browser 
+ * (at least for the Bi-Books needs), if anyone detects any improvement
  * for any browser please do a pool request
  * @param evt {MouseEvent} Mouse event to do the selection
  * @returns Selection Range
