@@ -1,22 +1,38 @@
 import { getSettings } from './settings';
 import clearSelection from './clearSelection';
+import selectWordFromPoint from './selectWordFromPoint';
+import drawCurrentSeletion from './drawCurrentSeletion';
+
 /**
  * Setups the text selection
  */
-const setupSelection = (): void => {  
+const setupSelection = (): void => {
   const content = document.body.querySelector('body > .zoomPanel');
+  const chapterWrapper = document.body.querySelector('body > .zoomPanel .chapterWrapper') as HTMLDivElement;
+  let currentSelection: Range | null = null;
   let isMouseMove = false;
   let isMouseDown = false;
-  if (content) {
+  if (content && chapterWrapper) {
+
+    document.addEventListener('contextmenu', (ev): void => {
+      ev.preventDefault()
+    });
+
     content.addEventListener('mousedown', (ev): void => {
-      isMouseMove = false;
-      isMouseDown = true;
-      ev.preventDefault();
-      ev.stopPropagation();
-      document.documentElement.style.setProperty(
-        '--viewerSnapType',
-        `none`,
-      );
+      const event = ev as MouseEvent;
+      if (event.button === 0) {
+        isMouseMove = false;
+        isMouseDown = true;
+        ev.preventDefault();
+        ev.stopPropagation();
+        document.documentElement.style.setProperty(
+          '--viewerSnapType',
+          `none`,
+        );
+      } else if (event.button === 2) {
+        currentSelection = selectWordFromPoint(event);     
+        drawCurrentSeletion(currentSelection);
+      }
     });
 
     window.addEventListener('mouseup', (): void => {
@@ -38,7 +54,7 @@ const setupSelection = (): void => {
           scrollingElement.scrollBy(0, -event.movementY);
         } else {
           document.body.scrollBy(-event.movementX, 0);
-        }        
+        }
       }
     });
 
@@ -56,7 +72,7 @@ const setupSelection = (): void => {
       if (selection && selection.type === 'Range') {
         clearSelection();
       }
-            
+
     });
   }
 
