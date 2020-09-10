@@ -27,7 +27,7 @@ const drawCurrentSelection = (selection: Range | null): void => {
   const rects = selection?.getClientRects();
 
   if (rects && rects.length) {
-    const readMode = getSettings().readMode && !getSettings().verticalScroll;
+    const readMode = getSettings().readMode || getSettings().verticalScroll;
     const reusable = new Array<HTMLDivElement>();
     hightLightsWrapper
       .querySelectorAll('.hightLight')

@@ -30,6 +30,7 @@ const setupSelection = (): void => {
           '--viewerSnapType',
           `none`,
         );
+        document.documentElement.style.setProperty('--dragCursor','grabbing');
       } else if (event.button === 2) {
         currentSelection = selectWordFromPoint(event);     
         drawCurrentSelection(currentSelection);
@@ -43,6 +44,7 @@ const setupSelection = (): void => {
           '--viewerSnapType',
           `x mandatory`,
         );
+        document.documentElement.style.setProperty('--dragCursor','grab');
       }
     });
 

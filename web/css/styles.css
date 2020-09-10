@@ -53,7 +53,7 @@ body > .zoomPanel iframe {
 .backgroundPageColor {  
   position: fixed;
   background-color: white;
-  cursor: drag;
+  cursor: var(--dragCursor, grab);
   left: 0px;
   top: 0px;
   width: 100vw;
@@ -86,7 +86,7 @@ body > .zoomPanel > .chapterWrapper {
   height: calc(var(--vh, 100vh) - 2em);
   hyphens: auto;
   clear: both;
-  cursor: grab;
+  cursor: var(--dragCursor, grab);
   user-select: none;
 }
 
