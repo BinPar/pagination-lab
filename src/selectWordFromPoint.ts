@@ -24,6 +24,9 @@ const selectWordFromPoint = (ev: MouseEvent): Range | null => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (selection as any).modify('extend', 'forward', 'word');
       result = selection.getRangeAt(0);
+      if(selection.toString().endsWith(' ')) {
+        result.setEnd(result.endContainer, result.endOffset - 1);
+      }
       selection.removeAllRanges();
     }
     chapterWrapper.style.userSelect = 'none';

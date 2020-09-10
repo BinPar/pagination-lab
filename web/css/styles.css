@@ -132,6 +132,22 @@ body.vertical > .zoomPanel > .labelsForEveryPage {
   display: none;
 }
 
+body > .zoomPanel > .hightLights {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+ }
+
+body > .zoomPanel > .hightLights > .hightLight {
+  position: absolute;
+  background-color: #3273ff46;
+  border-style: solid;
+  border-width: thin;
+  border-color: #ffefc0;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
 body.vertical > .pageSnaps {
   display: none;
 }
