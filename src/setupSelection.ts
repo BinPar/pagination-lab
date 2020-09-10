@@ -1,8 +1,7 @@
-import { getSettings } from './settings';
 import clearSelection from './clearSelection';
 import selectWordFromPoint from './selectWordFromPoint';
 import drawCurrentSelection from './drawCurrentSelection';
-import { updateSettings } from './settings';
+import { updateSettings, getSettings } from './settings';
 
 /**
  * Setups the text selection
@@ -30,9 +29,9 @@ const setupSelection = (): void => {
           '--viewerSnapType',
           `none`,
         );
-        document.documentElement.style.setProperty('--dragCursor','grabbing');
+        document.documentElement.style.setProperty('--dragCursor', 'grabbing');
       } else if (event.button === 2) {
-        currentSelection = selectWordFromPoint(event);     
+        currentSelection = selectWordFromPoint(event);
         drawCurrentSelection(currentSelection);
       }
     });
@@ -44,7 +43,7 @@ const setupSelection = (): void => {
           '--viewerSnapType',
           `x mandatory`,
         );
-        document.documentElement.style.setProperty('--dragCursor','grab');
+        document.documentElement.style.setProperty('--dragCursor', 'grab');
       }
     });
 
@@ -61,7 +60,7 @@ const setupSelection = (): void => {
       } else {
         const event = ev as MouseEvent;
         currentSelection = selectWordFromPoint(event);
-        updateSettings({currentSelection});
+        updateSettings({ currentSelection });
         drawCurrentSelection(currentSelection);
       }
     });

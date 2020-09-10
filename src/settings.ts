@@ -19,6 +19,7 @@ const initialSettings: Settings = {
   currentFont: 'baskerville-enc',
   verticalPageMarkers: [],
   handleZoomAnimation: false,
+  currentSelection: null,
 };
 
 /**

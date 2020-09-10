@@ -1,5 +1,6 @@
 import getRangeFromPoint from "./getRangeFromPoint";
 import { getSettings } from './settings';
+
 let chapterWrapper: HTMLDivElement;
 
 /**
