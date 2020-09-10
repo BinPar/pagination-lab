@@ -14,4 +14,5 @@ export default interface Settings {
   verticalScroll: boolean;
   currentFont: string;
   handleZoomAnimation: boolean;
+  currentSelection: Range | null;
 };

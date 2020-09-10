@@ -2,6 +2,7 @@ import { getSettings } from './settings';
 import clearSelection from './clearSelection';
 import selectWordFromPoint from './selectWordFromPoint';
 import drawCurrentSelection from './drawCurrentSelection';
+import { updateSettings } from './settings';
 
 /**
  * Setups the text selection
@@ -9,8 +10,6 @@ import drawCurrentSelection from './drawCurrentSelection';
 const setupSelection = (): void => {
   const content = document.body.querySelector('body > .zoomPanel');
   const chapterWrapper = document.body.querySelector('body > .zoomPanel .chapterWrapper') as HTMLDivElement;
-  const hightLightsWrapper = document.body.querySelector('body > .zoomPanel .hightLights') as HTMLDivElement;
-  
   let currentSelection: Range | null = null;
   let isMouseMove = false;
   let isMouseDown = false;
@@ -33,7 +32,7 @@ const setupSelection = (): void => {
         );
       } else if (event.button === 2) {
         currentSelection = selectWordFromPoint(event);     
-        drawCurrentSelection(currentSelection, hightLightsWrapper);
+        drawCurrentSelection(currentSelection);
       }
     });
 
@@ -57,6 +56,11 @@ const setupSelection = (): void => {
         } else {
           document.body.scrollBy(-event.movementX / window.devicePixelRatio, 0);
         }
+      } else {
+        const event = ev as MouseEvent;
+        currentSelection = selectWordFromPoint(event);
+        updateSettings({currentSelection});
+        drawCurrentSelection(currentSelection);
       }
     });
 

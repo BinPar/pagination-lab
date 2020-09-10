@@ -1,6 +1,6 @@
 import PageNumberMark from './model/PageNumberMark';
 import { getSettings, updateSettings } from './settings';
-
+import drawCurrentSelection from './drawCurrentSelection';
 
 /**
  * Removes all labels and page snaps
@@ -202,6 +202,7 @@ const recalculateColumnConfig = (
   newSettings.pagesPerColumn = pagesPerColumn;
   newSettings.verticalPageMarkers = verticalPageMarkers;
   updateSettings(newSettings);
+  drawCurrentSelection(newSettings.currentSelection);
 };
 
 export default recalculateColumnConfig;
