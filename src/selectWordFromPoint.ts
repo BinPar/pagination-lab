@@ -15,7 +15,7 @@ const selectWordFromPoint = (ev: MouseEvent): Range | null => {
   }
   if (chapterWrapper) {
     if (!getSettings().animateEnabled) {
-      // we need to aboid it during the zoom animation
+      // we need to avoid it during the zoom animation
       return null;
     }
     chapterWrapper.style.userSelect = 'auto';

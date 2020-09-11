@@ -14,9 +14,11 @@ const setupSelection = (): void => {
   let isMouseDown = false;
   if (content && chapterWrapper) {
 
-    document.addEventListener('contextmenu', (ev): void => {
-      ev.preventDefault()
-    });
+    if (getSettings().disableContextMenu) {
+      document.addEventListener('contextmenu', (ev): void => {
+        ev.preventDefault()
+      });
+    }
 
     content.addEventListener('mousedown', (ev): void => {
       const event = ev as MouseEvent;
@@ -57,7 +59,7 @@ const setupSelection = (): void => {
         } else {
           document.body.scrollBy(-event.movementX / window.devicePixelRatio, 0);
         }
-      } else {
+      } else if (getSettings().debugSelectOnHover) {
         const event = ev as MouseEvent;
         currentSelection = selectWordFromPoint(event);
         updateSettings({ currentSelection });
