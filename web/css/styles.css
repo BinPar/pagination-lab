@@ -132,13 +132,13 @@ body.vertical > .zoomPanel > .labelsForEveryPage {
   display: none;
 }
 
-body > .zoomPanel > .hightLights {
+body > .zoomPanel > .highLights {
   position: absolute;
   top: 0px;
   left: 0px;
 }
 
-body > .zoomPanel > .hightLights > .hightLight {
+body > .zoomPanel > .highLights > .highLight {
   position: absolute;
   background-color: #3273ff46;
   border-style: solid;
@@ -147,6 +147,21 @@ body > .zoomPanel > .hightLights > .hightLight {
   border-radius: 2px;
   pointer-events: none;
   transition: width 0.2s, height 0.2s, top 0.2s, left 0.2s;
+}
+
+body > .zoomPanel > .highLights > .highLight.leftExtensor {
+  border-radius: 100%;
+  border-top-right-radius: 0;
+  background-color: #3273ff;
+  cursor: w-resize;
+  pointer-events: all;
+}
+
+body > .zoomPanel > .highLights > .highLight.rightExtensor {
+  border-radius: 100%;
+  border-top-left-radius: 0;
+  background-color: #3273ff;
+  cursor: e-resize;
 }
 
 body.vertical > .pageSnaps {

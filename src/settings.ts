@@ -20,8 +20,8 @@ const initialSettings: Settings = {
   verticalPageMarkers: [],
   handleZoomAnimation: false,
   currentSelection: null,
-  disableContextMenu: false,
-  debugSelectOnHover: true,
+  disableContextMenu: true,
+  debugSelectOnHover: false,
 };
 
 /**

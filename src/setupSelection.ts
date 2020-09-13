@@ -34,6 +34,7 @@ const setupSelection = (): void => {
         document.documentElement.style.setProperty('--dragCursor', 'grabbing');
       } else if (event.button === 2) {
         currentSelection = selectWordFromPoint(event);
+        updateSettings({ currentSelection });
         drawCurrentSelection(currentSelection);
       }
     });
@@ -81,7 +82,6 @@ const setupSelection = (): void => {
       if (selection && selection.type === 'Range') {
         clearSelection();
       }
-
     });
   }
 

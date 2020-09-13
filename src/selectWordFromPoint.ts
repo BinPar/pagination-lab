@@ -26,12 +26,16 @@ const selectWordFromPoint = (ev: MouseEvent): Range | null => {
       selection.addRange(range);
 
       const tagName = selection.anchorNode?.nodeName;
+      // We try to avoid the SGV nodes that generate
+      // unexpected highlight rectangles
       if (tagName === 'polyline' ||
         tagName === 'path' ||
         tagName === 'circle' ||
         tagName === 'elipse') {
         result = null;
       } else {
+        // We need to avoid the selection of any content that is not
+        // contained in the chapterWrapper node
         let parent = selection.anchorNode?.parentElement;
         while (parent && parent.className !== 'chapterWrapper') {
           parent = parent?.parentElement;
@@ -42,8 +46,25 @@ const selectWordFromPoint = (ev: MouseEvent): Range | null => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (selection as any).modify('extend', 'forward', 'word');
           result = selection.getRangeAt(0);
+          // Avoid tailing space selection
           if (selection.toString().endsWith(' ')) {
-            result.setEnd(result.endContainer, result.endOffset - 1);
+            if (result.endOffset < 2) {
+              // Special case of empty tag selection
+              result.setEndBefore(result.endContainer)
+            } else {
+              result.setEnd(result.endContainer, result.endOffset - 1);
+            }
+          }
+          // Avoid the selection of elements that are not behind the cursor
+          const rect = result.getBoundingClientRect();
+          const selectionMargin = getSettings().currentFontSize / 2;
+          const cursorInsideSelection =
+            rect.left - selectionMargin <= ev.clientX &&
+            rect.right + selectionMargin >= ev.clientX &&
+            rect.top - selectionMargin <= ev.clientY &&
+            rect.bottom + selectionMargin >= ev.clientY;
+          if (!cursorInsideSelection) {
+            result = null;
           }
         } else {
           result = null;
