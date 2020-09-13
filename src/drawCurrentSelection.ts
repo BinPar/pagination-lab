@@ -1,37 +1,17 @@
 import clientToZoomPanelCoordinates from './clientToZoomPanelCoordinates';
-import { getSettings } from './settings';
+import selectWordFromPoint from './selectWordFromPoint';
+import { getSettings, updateSettings } from './settings';
 
 let highLightsWrapper: HTMLDivElement;
-
 let draggingExtension: HTMLDivElement | null = null;
-
-// Dragging selection start or end 
-window.addEventListener('mousemove', (ev: Event): void => {
-  if (draggingExtension) {
-    ev.preventDefault();
-    ev.stopPropagation();
-    const event = ev as MouseEvent;
-    const zoomPanelCoordinates = clientToZoomPanelCoordinates({ x: event.clientX, y: event.clientY });
-    draggingExtension.style.left = `${zoomPanelCoordinates.x}px`;
-    draggingExtension.style.top = `${zoomPanelCoordinates.y}px`;
-  }
-});
-
-// End of dragging selection start or end 
-window.addEventListener('mouseup', (ev: Event): void => {
-  if (draggingExtension) {
-    ev.preventDefault();
-    ev.stopPropagation();
-    draggingExtension = null;
-    document.documentElement.style.setProperty('--dragCursor', 'grab');
-  }
-});
+let isDraggingLeft = false;
 
 // Start of dragging selection start or end
 const onMouseDown = (ev: Event, extension: HTMLDivElement, left: boolean): void => {
   ev.preventDefault();
   ev.stopPropagation();
   draggingExtension = extension;
+  isDraggingLeft = left;
   document.documentElement.style.setProperty('--dragCursor', left ? 'w-resize' : 'e-resize');
 }
 
@@ -93,7 +73,6 @@ const drawCurrentSelection = (selection: Range | null): void => {
   }
 
   const rects = selection?.getClientRects();
-
   if (rects && rects.length) {
     const reusable = new Array<HTMLDivElement>();
     highLightsWrapper
@@ -130,5 +109,39 @@ const drawCurrentSelection = (selection: Range | null): void => {
     }
   }
 };
+
+// Dragging selection start or end 
+window.addEventListener('mousemove', (ev: Event): void => {
+  if (draggingExtension) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const event = ev as MouseEvent;
+    const selection = selectWordFromPoint(event);
+    const { currentSelection } = getSettings();
+    if (currentSelection && selection) {
+      const newRange = currentSelection.cloneRange();
+      if (isDraggingLeft) {
+        newRange.setStart(selection?.startContainer,selection?.startOffset);
+      } else {
+        newRange.setEnd(selection?.endContainer,selection?.endOffset);
+      }
+      if (!newRange.collapsed) {
+        updateSettings({currentSelection: newRange});
+        drawCurrentSelection(newRange);
+      }
+    }
+  }
+});
+
+// End of dragging selection start or end 
+window.addEventListener('mouseup', (ev: Event): void => {
+  if (draggingExtension) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    draggingExtension = null;
+    document.documentElement.style.setProperty('--dragCursor', 'grab');
+  }
+});
+
 
 export default drawCurrentSelection;

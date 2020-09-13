@@ -146,6 +146,7 @@ body > .zoomPanel > .highLights > .highLight {
   border-color: #ffefc0;
   border-radius: 2px;
   pointer-events: none;
+  /* transition: width 0.2s, height 0.2s, top 0.2s, left 0.2s; */
 }
 
 body > .zoomPanel > .highLights > .highLight.leftExtensor,
