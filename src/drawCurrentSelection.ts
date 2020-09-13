@@ -1,4 +1,5 @@
 import clientToZoomPanelCoordinates from './clientToZoomPanelCoordinates';
+import deduplicateRectangles from './deduplicateRectangles';
 import selectWordFromPoint from './selectWordFromPoint';
 import { getSettings, updateSettings } from './settings';
 
@@ -12,11 +13,12 @@ const onMouseDown = (ev: Event, extension: HTMLDivElement, left: boolean): void 
   ev.stopPropagation();
   draggingExtension = extension;
   isDraggingLeft = left;
+  updateSettings({ draggingSelection: true });
   document.documentElement.style.setProperty('--dragCursor', left ? 'w-resize' : 'e-resize');
 }
 
 // Click on start or end selection
-const onClick =  (ev: Event): void => {
+const onClick = (ev: Event): void => {
   ev.preventDefault();
   ev.stopPropagation();
 };
@@ -72,8 +74,8 @@ const drawCurrentSelection = (selection: Range | null): void => {
       });
   }
 
-  const rects = selection?.getClientRects();
-  if (rects && rects.length) {
+  const rects = deduplicateRectangles(selection?.getClientRects());
+  if (rects.length) {
     const reusable = new Array<HTMLDivElement>();
     highLightsWrapper
       .querySelectorAll('.highLight')
@@ -121,12 +123,12 @@ window.addEventListener('mousemove', (ev: Event): void => {
     if (currentSelection && selection) {
       const newRange = currentSelection.cloneRange();
       if (isDraggingLeft) {
-        newRange.setStart(selection?.startContainer,selection?.startOffset);
+        newRange.setStart(selection?.startContainer, selection?.startOffset);
       } else {
-        newRange.setEnd(selection?.endContainer,selection?.endOffset);
+        newRange.setEnd(selection?.endContainer, selection?.endOffset);
       }
       if (!newRange.collapsed) {
-        updateSettings({currentSelection: newRange});
+        updateSettings({ currentSelection: newRange });
         drawCurrentSelection(newRange);
       }
     }
@@ -139,6 +141,7 @@ window.addEventListener('mouseup', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
     draggingExtension = null;
+    updateSettings({ draggingSelection: false });
     document.documentElement.style.setProperty('--dragCursor', 'grab');
   }
 });

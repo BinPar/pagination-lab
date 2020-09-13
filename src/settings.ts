@@ -22,6 +22,7 @@ const initialSettings: Settings = {
   currentSelection: null,
   disableContextMenu: true,
   debugSelectOnHover: false,
+  draggingSelection: false,
 };
 
 /**

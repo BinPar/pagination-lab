@@ -9,12 +9,12 @@ import { getSettings } from './settings';
  */
 const clientToZoomPanelCoordinates = (client: Coordinates): Coordinates => {
   const result = { ...client };
-  const { readMode, currentFontSize } = getSettings();
+  const { readMode, currentFontSize, verticalScroll } = getSettings();
   const scrollingElement = document.scrollingElement || document.body;
-  const fixZoom = readMode ? 1 : (1 / 0.75)
+  const fixZoom = (readMode || verticalScroll) ? 1 : (1 / 0.75)
   let topFix = currentFontSize;
   let leftFix = 0;
-  if (!readMode) {
+  if (!readMode && !verticalScroll) {
     topFix = window.innerHeight / 2 * - 0.25 - currentFontSize * 0.5;
     leftFix = window.innerWidth / 2 * - 0.25;
   }

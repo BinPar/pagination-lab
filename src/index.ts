@@ -4,6 +4,7 @@ import getDomUI from './getDomUI';
 import setupGeneralEvents from './setupGeneralEvents';
 import setupButtonsEvents from './setupButtonsEvents';
 import setupSelection from './setupSelection';
+import drawCurrentSelection from './drawCurrentSelection';
 
 /**
  * All the system is setup when the window loads
@@ -24,6 +25,11 @@ const onWindowLoad = (): void => {
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     if (getSettings().animateEnabled) {
+      
+      if (getSettings().currentSelection && !getSettings().draggingSelection) {
+        updateSettings({currentSelection: null});
+        drawCurrentSelection(null);
+      }
       updateSettings({ readMode: !getSettings().readMode });
       if (domUI.zoomPanel && domUI.buttonsPanel) {
         if (!getSettings().verticalScroll) {

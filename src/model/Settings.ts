@@ -17,4 +17,5 @@ export default interface Settings {
   currentSelection: Range | null;
   disableContextMenu: boolean;
   debugSelectOnHover: boolean;
+  draggingSelection: boolean;
 };
