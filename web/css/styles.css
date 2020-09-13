@@ -140,7 +140,7 @@ body > .zoomPanel > .highLights {
 
 body > .zoomPanel > .highLights > .highLight {
   position: absolute;
-  background-color: #3273ff46;
+  background-color: #0030ff46;
   border-style: solid;
   border-width: thin;
   border-color: #ffefc0;
@@ -149,18 +149,20 @@ body > .zoomPanel > .highLights > .highLight {
   transition: width 0.2s, height 0.2s, top 0.2s, left 0.2s;
 }
 
-body > .zoomPanel > .highLights > .highLight.leftExtensor {
+body > .zoomPanel > .highLights > .highLight.leftExtensor,
+body > .zoomPanel > .highLights > .highLight.rightExtensor {
   border-radius: 100%;
-  border-top-right-radius: 0;
   background-color: #3273ff;
-  cursor: w-resize;
   pointer-events: all;
 }
 
+body > .zoomPanel > .highLights > .highLight.leftExtensor {
+  border-top-right-radius: 0;
+  cursor: e-resize;
+}
+
 body > .zoomPanel > .highLights > .highLight.rightExtensor {
-  border-radius: 100%;
   border-top-left-radius: 0;
-  background-color: #3273ff;
   cursor: e-resize;
 }
 

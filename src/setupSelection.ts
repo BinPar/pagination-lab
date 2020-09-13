@@ -2,6 +2,7 @@ import clearSelection from './clearSelection';
 import selectWordFromPoint from './selectWordFromPoint';
 import drawCurrentSelection from './drawCurrentSelection';
 import { updateSettings, getSettings } from './settings';
+import findNearestSnap from './findNearestSnap';
 
 /**
  * Setups the text selection
@@ -39,15 +40,46 @@ const setupSelection = (): void => {
       }
     });
 
-    window.addEventListener('mouseup', (): void => {
-      if (isMouseDown) {
-        isMouseDown = false;
-        document.documentElement.style.setProperty(
-          '--viewerSnapType',
-          `x mandatory`,
-        );
+    window.addEventListener('mouseup', (ev: Event): void => {
+      if (isMouseDown && isMouseMove) {
+        isMouseMove = false;
+        if (getSettings().animateEnabled && !getSettings().verticalScroll) {
+          updateSettings({
+            animateEnabled: false,
+          });
+          // We need to animate to the next snap and then reactivate the snap
+          const event = ev as MouseEvent;
+          const initialSpeed = event.movementX;
+          document.body.scrollBy(initialSpeed / window.devicePixelRatio, 0);
+          const currentPosition = document.body.scrollLeft;
+          const targetPosition = findNearestSnap(currentPosition);
+          const delta = (targetPosition - currentPosition) / 10;
+          let iteration = 0;
+          const animate = (): void => {
+            if (iteration<10) {
+              iteration++;
+              document.body.scrollBy(delta, 0);
+              window.requestAnimationFrame(animate);
+            } else {
+              document.documentElement.style.setProperty(
+                '--viewerSnapType',   
+                `x mandatory`,
+              );
+              updateSettings({
+                animateEnabled: true,
+              });
+            }
+          }
+          window.requestAnimationFrame(animate);
+        } else {
+          document.documentElement.style.setProperty(
+            '--viewerSnapType',
+            `x mandatory`,
+          );
+        }
         document.documentElement.style.setProperty('--dragCursor', 'grab');
       }
+      isMouseDown = false;
     });
 
     window.addEventListener('mousemove', (ev: Event): void => {
