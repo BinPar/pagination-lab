@@ -1,6 +1,29 @@
+import clientToZoomPanelCoordinates from './clientToZoomPanelCoordinates';
 import { getSettings } from './settings';
 
 let highLightsWrapper: HTMLDivElement;
+
+let draggingExtension: HTMLDivElement | null = null;
+
+window.addEventListener('mousemove', (ev: Event): void => {
+  if (draggingExtension) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const event = ev as MouseEvent;
+    const zoomPanelCoordinates = clientToZoomPanelCoordinates({ x: event.clientX, y: event.clientY });
+    draggingExtension.style.left = `${zoomPanelCoordinates.x}px`;
+    draggingExtension.style.top = `${zoomPanelCoordinates.y}px`;
+  }
+});
+
+window.addEventListener('mouseup', (ev: Event): void => {
+  if (draggingExtension) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    draggingExtension = null;
+    document.documentElement.style.setProperty('--dragCursor', 'grab');
+  }
+});
 
 /**
  * Adds one of the extensors (left of right)
@@ -26,6 +49,16 @@ const addExtensorsToHighLight = (textSelection: HTMLDivElement, left: boolean): 
   }
   extension.style.width = `${fontSize}px`;
   extension.style.height = `${fontSize}px`;
+  extension.addEventListener('mousedown', (ev: Event): void => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    draggingExtension = extension;
+    document.documentElement.style.setProperty('--dragCursor', left ? 'w-resize' : 'e-resize');
+  });
+  extension.addEventListener('click', (ev: Event): void => {
+    ev.preventDefault();
+    ev.stopPropagation();
+  });
   return extension;
 }
 /**
@@ -54,7 +87,6 @@ const drawCurrentSelection = (selection: Range | null): void => {
   const rects = selection?.getClientRects();
 
   if (rects && rects.length) {
-    const readMode = getSettings().readMode || getSettings().verticalScroll;
     const reusable = new Array<HTMLDivElement>();
     highLightsWrapper
       .querySelectorAll('.highLight')
@@ -70,18 +102,12 @@ const drawCurrentSelection = (selection: Range | null): void => {
       const rect = rects[i];
       const highLight = i < reusable.length ? reusable[i] : document.createElement('div');
       highLight.className = 'highLight';
-      const scrollingElement = document.scrollingElement || document.body;
-      const fixZoom = readMode ? 1 : (1 / 0.75)
-      let topFix = getSettings().currentFontSize;
-      let leftFix = 0;
-      if (!readMode) {
-        topFix = window.innerHeight / 2 * - 0.25 - getSettings().currentFontSize * 0.5;
-        leftFix = window.innerWidth / 2 * -0.25;
-      }
-      highLight.style.left = `${(rect.left - 1 + document.body.scrollLeft + leftFix) * fixZoom}px`;
-      highLight.style.top = `${(rect.top - 1 + scrollingElement.scrollTop + topFix) * fixZoom}px`;
-      highLight.style.width = `${(rect.width + 2) * fixZoom}px`;
-      highLight.style.height = `${(rect.height + 2) * fixZoom}px`;
+      const zoomPanelCoordinates = clientToZoomPanelCoordinates({ x: rect.left, y: rect.top });
+      const fixZoom = zoomPanelCoordinates.fixZoom || 1;
+      highLight.style.left = `${zoomPanelCoordinates.x - 1}px`;
+      highLight.style.top = `${zoomPanelCoordinates.y - 1}px`;
+      highLight.style.width = `${rect.width * fixZoom + 2}px`;
+      highLight.style.height = `${rect.height * fixZoom + 2}px`;
       if (i >= reusable.length) {
         highLightsWrapper.append(highLight);
       }
