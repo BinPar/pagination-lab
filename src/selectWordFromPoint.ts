@@ -8,7 +8,7 @@ let chapterWrapper: HTMLDivElement;
  * @param ev Mouse Event
  * @returns Range of the selection
  */
-const selectWordFromPoint = (ev: MouseEvent): Range | null => {
+const selectWordFromPoint = (ev: MouseEvent, word = true): Range | null => {
   let result: Range | null = null;
   if (!chapterWrapper) {
     chapterWrapper = document.body.querySelector('body > .zoomPanel .chapterWrapper') as HTMLDivElement;
@@ -41,19 +41,23 @@ const selectWordFromPoint = (ev: MouseEvent): Range | null => {
           parent = parent?.parentElement;
         }
         if (parent && parent.className === 'chapterWrapper') {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (selection as any).modify('move', 'backward', 'word');
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (selection as any).modify('extend', 'forward', 'word');
-          result = selection.getRangeAt(0);
-          // Avoid tailing space selection
-          if (selection.toString().endsWith(' ')) {
-            if (result.endOffset < 2) {
-              // Special case of empty tag selection
-              result.setEndBefore(result.endContainer)
-            } else {
-              result.setEnd(result.endContainer, result.endOffset - 1);
+          if (word) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (selection as any).modify('move', 'backward', 'word');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (selection as any).modify('extend', 'forward', 'word');
+            result = selection.getRangeAt(0);
+            // Avoid tailing space selection
+            if (selection.toString().endsWith(' ')) {
+              if (result.endOffset < 2) {
+                // Special case of empty tag selection
+                result.setEndBefore(result.endContainer)
+              } else {
+                result.setEnd(result.endContainer, result.endOffset - 1);
+              }
             }
+          } else {
+            result = selection.getRangeAt(0);
           }
           // Avoid the selection of elements that are not behind the cursor
           const rect = result.getBoundingClientRect();

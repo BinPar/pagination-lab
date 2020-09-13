@@ -118,7 +118,7 @@ window.addEventListener('mousemove', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
     const event = ev as MouseEvent;
-    const selection = selectWordFromPoint(event);
+    const selection = selectWordFromPoint(event, false);
     const { currentSelection } = getSettings();
     if (currentSelection && selection) {
       const newRange = currentSelection.cloneRange();
