@@ -5,6 +5,7 @@ let highLightsWrapper: HTMLDivElement;
 
 let draggingExtension: HTMLDivElement | null = null;
 
+// Dragging selection start or end 
 window.addEventListener('mousemove', (ev: Event): void => {
   if (draggingExtension) {
     ev.preventDefault();
@@ -16,6 +17,7 @@ window.addEventListener('mousemove', (ev: Event): void => {
   }
 });
 
+// End of dragging selection start or end 
 window.addEventListener('mouseup', (ev: Event): void => {
   if (draggingExtension) {
     ev.preventDefault();
@@ -24,6 +26,20 @@ window.addEventListener('mouseup', (ev: Event): void => {
     document.documentElement.style.setProperty('--dragCursor', 'grab');
   }
 });
+
+// Start of dragging selection start or end
+const onMouseDown = (ev: Event, extension: HTMLDivElement, left: boolean): void => {
+  ev.preventDefault();
+  ev.stopPropagation();
+  draggingExtension = extension;
+  document.documentElement.style.setProperty('--dragCursor', left ? 'w-resize' : 'e-resize');
+}
+
+// Click on start or end selection
+const onClick =  (ev: Event): void => {
+  ev.preventDefault();
+  ev.stopPropagation();
+};
 
 /**
  * Adds one of the extensors (left of right)
@@ -49,16 +65,8 @@ const addExtensorsToHighLight = (textSelection: HTMLDivElement, left: boolean): 
   }
   extension.style.width = `${fontSize}px`;
   extension.style.height = `${fontSize}px`;
-  extension.addEventListener('mousedown', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    draggingExtension = extension;
-    document.documentElement.style.setProperty('--dragCursor', left ? 'w-resize' : 'e-resize');
-  });
-  extension.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();
-  });
+  extension.addEventListener('mousedown', (ev: Event): void => onMouseDown(ev, extension, left));
+  extension.addEventListener('click', onClick);
   return extension;
 }
 /**
