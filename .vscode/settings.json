@@ -1,5 +1,7 @@
 {
   "cSpell.words": [
+    "Autoscaler",
+    "CICD",
     "Interop",
     "Paginaci",
     "Paginación",
@@ -12,6 +14,9 @@
     "crossorigin",
     "downlevel",
     "epub",
+    "gninx",
+    "kubernetes",
+    "letsencrypt",
     "loglevel",
     "n",
     "otransitionend",
