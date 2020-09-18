@@ -69,7 +69,7 @@ spec:
             path: /
   tls:
     - hosts:
-        - ${CICD_GIT_REPO_NAME}.binpar.cloud
+        - ${CICD_GIT_REPO_NAME}-dev.binpar.cloud
       secretName: ${CICD_GIT_REPO_NAME}-cert-dev
 ---
 # Deploy - www-deploy
