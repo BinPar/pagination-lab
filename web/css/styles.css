@@ -8,6 +8,7 @@ body {
   scroll-snap-align: none;
   height: 100vh;
   margin: 0;
+  scrollbar-width: none;
   padding: 0;
   overflow-y: hidden;
   overflow-x: scroll;
@@ -52,6 +53,7 @@ body > .zoomPanel iframe {
 .backgroundPageColor {
   position: fixed;
   background-color: white;
+  cursor: var(--dragCursor, grab);
   left: 0px;
   top: 0px;
   width: 100vw;
@@ -84,6 +86,8 @@ body > .zoomPanel > .chapterWrapper {
   height: calc(var(--vh, 100vh) - 2em);
   hyphens: auto;
   clear: both;
+  cursor: var(--dragCursor, grab);
+  user-select: none;
 }
 
 body.vertical > .zoomPanel > .chapterWrapper {
@@ -128,6 +132,40 @@ body.vertical > .zoomPanel > .labelsForEveryPage {
   display: none;
 }
 
+body > .zoomPanel > .highLights {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+body > .zoomPanel > .highLights > .highLight {
+  position: absolute;
+  background-color: #0030ff46;
+  border-style: solid;
+  border-width: thin;
+  border-color: #fffff7;
+  border-radius: 2px;
+  pointer-events: none;
+  /* transition: width 0.2s, height 0.2s, top 0.2s, left 0.2s; */
+}
+
+body > .zoomPanel > .highLights > .highLight.leftExtensor,
+body > .zoomPanel > .highLights > .highLight.rightExtensor {
+  border-radius: 100%;
+  background-color: #3273ff;
+  pointer-events: all;
+}
+
+body > .zoomPanel > .highLights > .highLight.leftExtensor {
+  border-top-right-radius: 0;
+  cursor: e-resize;
+}
+
+body > .zoomPanel > .highLights > .highLight.rightExtensor {
+  border-top-left-radius: 0;
+  cursor: e-resize;
+}
+
 body.vertical > .pageSnaps {
   display: none;
 }
@@ -153,6 +191,7 @@ body > .zoomPanel > .labelsForEveryPage > .label {
   width: var(--totalColumnWidth, 0);
   float: left;
   height: 2em;
+  pointer-events: none;
 }
 
 body > .zoomPanel > .labelsForEveryPage > .label p {
@@ -162,6 +201,7 @@ body > .zoomPanel > .labelsForEveryPage > .label p {
   font-weight: 600;
   line-height: 3em;
   user-select: none;
+  pointer-events: none;
 }
 
 body > .buttons {
