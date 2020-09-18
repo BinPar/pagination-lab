@@ -1,6 +1,6 @@
 {
   "name": "pagination-lab",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Pagination Laboratory for BiBooks Apps",
   "engines": {
     "node": ">=10"
