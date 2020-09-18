@@ -5,13 +5,13 @@
 
    Repo: https://github.com/readium/readium-css */
 
-@namespace url("http://www.w3.org/1999/xhtml");
+@namespace url('http://www.w3.org/1999/xhtml');
 
-@namespace epub url("http://www.idpf.org/2007/ops");
+@namespace epub url('http://www.idpf.org/2007/ops');
 
-@namespace m url("http://www.w3.org/1998/Math/MathML/");
+@namespace m url('http://www.w3.org/1998/Math/MathML/');
 
-@namespace svg url("http://www.w3.org/2000/svg");
+@namespace svg url('http://www.w3.org/2000/svg');
 
 /* Readium CSS
    Default module
@@ -34,8 +34,8 @@
   --RS__paraSpacing: 0;
   --RS__paraIndent: 1em;
 
-  --RS__linkColor: #0000EE;
-  --RS__visitedColor: #551A8B;
+  --RS__linkColor: #0000ee;
+  --RS__visitedColor: #551a8b;
 
   --RS__primaryColor: ;
   --RS__secondaryColor: ;
@@ -49,7 +49,12 @@ body {
   font-size: var(--RS__baseFontSize);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--RS__compFontFamily);
 }
 
@@ -89,11 +94,15 @@ pre {
 
 /* Phrasing content */
 
-code, kbd, samp, tt {
+code,
+kbd,
+samp,
+tt {
   font-family: var(--RS__codeFontFamily);
 }
 
-sub, sup {
+sub,
+sup {
   position: relative;
   font-size: 67.5%;
   line-height: 1;
@@ -121,7 +130,9 @@ h1 {
   margin-top: calc(var(--RS__flowSpacing) * 2);
   margin-bottom: calc(var(--RS__flowSpacing) * 2);
   /* The following is base font size * typescale power of 3 */
-  font-size: calc(((1em * var(--RS__typeScale)) * var(--RS__typeScale)) * var(--RS__typeScale));
+  font-size: calc(
+    ((1em * var(--RS__typeScale)) * var(--RS__typeScale)) * var(--RS__typeScale)
+  );
 }
 
 h2 {
@@ -160,7 +171,9 @@ h6 {
 
 /* Lists */
 
-dl, ol, ul {
+dl,
+ol,
+ul {
   margin-top: var(--RS__flowSpacing);
   margin-bottom: var(--RS__flowSpacing);
 }
@@ -174,7 +187,10 @@ table {
   empty-cells: show;
 }
 
-thead, tbody, tfoot, table > tr {
+thead,
+tbody,
+tfoot,
+table > tr {
   vertical-align: top;
 }
 
@@ -182,7 +198,8 @@ th {
   text-align: left;
 }
 
-th, td {
+th,
+td {
   padding: 4px;
   border: 1px solid currentColor;
 }

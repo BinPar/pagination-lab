@@ -10,7 +10,6 @@ Pagination Laboratory for BiBooks Apps
 - `code .`
 - `npm run build`: That will generate de dist folder
 - `npm run dev`: to start the web server with hot reload
-- `npm run build-dev`: in a new tab to listen to file changes
 - open [http://localhost:3000](http://localhost:3000) or ngrok url
 
 ## Readium as CSS Reset

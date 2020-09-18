@@ -1,0 +1,118 @@
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${CICD_GIT_REPO_NAME}-prod
+  labels:
+    app.kubernetes.io/name: prod
+    app.kubernetes.io/instance: prod
+---
+# Service - gninx-service
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: www-prod
+  name: www-service-prod
+  namespace: ${CICD_GIT_REPO_NAME}-prod
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    run: www-prod
+  sessionAffinity: None
+  type: ClusterIP
+---
+# Issuer - letsencrypt
+apiVersion: cert-manager.io/v1alpha2
+kind: Issuer
+metadata:
+  name: letsencrypt-prod
+  namespace: ${CICD_GIT_REPO_NAME}-prod
+spec:
+  acme:
+    # The ACME server URL
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # Email address used for ACME registration
+    email: soporte@binpar.com
+    # Name of a secret used to store the ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    # Enable the HTTP-01 challenge provider
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+---
+# Ingress - ingress-prod
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-passthrough: 'false'
+    cert-manager.io/issuer: 'letsencrypt-prod'
+  generation: 2
+  name: ingress-prod
+  namespace: ${CICD_GIT_REPO_NAME}-prod
+spec:
+  rules:
+    - host: ${CICD_GIT_REPO_NAME}.binpar.cloud
+      http:
+        paths:
+          - backend:
+              serviceName: www-service-prod
+              servicePort: 80
+            path: /
+  tls:
+    - hosts:
+        - ${CICD_GIT_REPO_NAME}.binpar.cloud
+      secretName: ${CICD_GIT_REPO_NAME}-cert-prod
+---
+# Deploy - www-deploy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: www-prod
+  name: www-deploy-prod
+  namespace: ${CICD_GIT_REPO_NAME}-prod
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      run: www-prod
+  template:
+    metadata:
+      labels:
+        run: www-prod
+    spec:
+      imagePullSecrets:
+        - name: pipeline-docker-registry
+      containers:
+        - image: ${CICD_IMAGE}:${CICD_EXECUTION_SEQUENCE}
+          name: www-prod
+          envFrom:
+            - configMapRef:
+                name: www-config-prod
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 80
+              scheme: HTTP
+            failureThreshold: 2
+            timeoutSeconds: 5
+            periodSeconds: 60
+          resources:
+            requests:
+              memory: '40Mi'
+              cpu: '10m'
+            limits:
+              memory: '100Mi'
+              cpu: '100m'

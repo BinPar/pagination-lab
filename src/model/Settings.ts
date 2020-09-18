@@ -13,4 +13,9 @@ export default interface Settings {
   lineHeight: number;
   verticalScroll: boolean;
   currentFont: string;
-}
+  handleZoomAnimation: boolean;
+  currentSelection: Range | null;
+  disableContextMenu: boolean;
+  debugSelectOnHover: boolean;
+  draggingSelection: boolean;
+};

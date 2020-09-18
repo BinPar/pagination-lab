@@ -1,316 +1,81 @@
 import recalculateColumnConfig from './recalculateColumnConfig';
-import Settings from './model/Settings';
+import { getSettings, updateSettings } from './settings';
+import getDomUI from './getDomUI';
+import setupGeneralEvents from './setupGeneralEvents';
+import setupButtonsEvents from './setupButtonsEvents';
+import setupSelection from './setupSelection';
+import drawCurrentSelection from './drawCurrentSelection';
 
-interface FontFaceSet {
-  readonly ready: Promise<FontFaceSet>;
-}
-
-declare global {
-  interface Document {
-    fonts: FontFaceSet;
-  }
-}
-
-let settings: Settings = {
-  currentFontSize: 18,
-  columnWidth: 0,
-  totalColumns: 0,
-  scrollFix: 0,
-  currentPage: '',
-  pagesPerColumn: [],
-  readMode: true,
-  animateEnabled: true,
-  invertViewerColor: false,
-  sepiaViewerColor: false,
-  lineHeight: 1.5,
-  verticalScroll: false,
-  currentFont: 'baskerville-enc',
-  verticalPageMarkers: [],
-};
-
-let handleZoomAnimation = false;
-
-const recalculate = (): void => {
-  settings = recalculateColumnConfig(settings, false);
-};
-
-const recalculateAndScroll = (): void => {
-  settings = recalculateColumnConfig(settings, true);
-};
-
-let pageNumberBtn: HTMLElement | null;
-
-const onBodyScroll = (ev: Event): void => {
-  if (settings.animateEnabled && !settings.verticalScroll) {
-    let { columnWidth } = settings;
-    if (!settings.readMode) {
-      columnWidth *= 0.75;
-    }
-    const currentColumn = Math.round(
-      (document.body.scrollLeft - settings.scrollFix) / columnWidth,
-    );
-    if (currentColumn < settings.pagesPerColumn.length) {
-      settings.currentPage = settings.pagesPerColumn[currentColumn];
-    }
-    if (pageNumberBtn) {
-      pageNumberBtn.innerText = settings.currentPage;
-    }
-  } else if (settings.animateEnabled) {
-    const { scrollTop } = document.scrollingElement || document.body;
-    const currentMarker = settings.verticalPageMarkers.find((item): boolean => scrollTop <= item.top);
-    if (currentMarker) {
-      settings.currentPage = currentMarker.page;
-      if (pageNumberBtn) {
-        pageNumberBtn.innerText = settings.currentPage;
-      } 
-    }
-  } else {
-    ev.preventDefault();
-  }
-};
-
-window.addEventListener(
-  'touchmove',
-  (ev: TouchEvent): void => {
-    if (!settings.animateEnabled || ev.targetTouches.length > 1) {
-      ev.preventDefault();
-      ev.stopImmediatePropagation();
-    }
-  },
-  { passive: false },
-);
-
-window.addEventListener(
-  'touchstart',
-  (ev: TouchEvent): void => {
-    if (ev.targetTouches.length > 1) {
-      ev.preventDefault();
-      ev.stopImmediatePropagation();
-    }
-  },
-  { passive: false },
-);
-
+/**
+ * All the system is setup when the window loads
+ */
 const onWindowLoad = (): void => {
-  pageNumberBtn = document.getElementById('pageNumber');
+  const domUI = getDomUI();
+  setupGeneralEvents();
+  setupButtonsEvents();
+  setupSelection();
   document.documentElement.style.setProperty(
     '--fontSize',
-    `${settings.currentFontSize}px`,
-  );
-  const zoomPanel = document.body.querySelector(
-    'body > .zoomPanel',
-  ) as HTMLDivElement;
-  const buttonsPanel = document.body.querySelector('body > .buttons');
-  const fullScreenModeButton = document.body.querySelector(
-    'body > .buttons > .fullScreenModeButton',
-  );
-  const increaseFontButton = document.body.querySelector(
-    'body > .buttons > .increaseFontButton',
-  );
-  const decreaseFontButton = document.body.querySelector(
-    'body > .buttons > .decreaseFontButton',
-  );
-  const increaseLineHeight = document.body.querySelector(
-    'body > .buttons > .increaseLineHeight',
-  );
-  const decreaseLineHeight = document.body.querySelector(
-    'body > .buttons > .decreaseLineHeight',
-  );
-  const nightModeButton = document.body.querySelector(
-    'body > .buttons > .nightModeButton',
-  );
-  const sepiaModeButton = document.body.querySelector(
-    'body > .buttons > .sepiaModeButton',
-  );
-  const verticalScrollButton = document.body.querySelector(
-    'body > .buttons > .verticalScrollButton',
+    `${getSettings().currentFontSize}px`,
   );
 
-  const updateFontInfo = (): void => {
-    document.documentElement.style.setProperty(
-      '--fontSize',
-      `${settings.currentFontSize}px`,
-    );
-    document.documentElement.style.setProperty(
-      '--lineHeight',
-      `${settings.lineHeight}em`,
-    );
-    settings = recalculateColumnConfig(settings, true);
-  };
-
-  verticalScrollButton?.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    settings.verticalScroll = !settings.verticalScroll;
-
-    document.body.className = `viewer epub ${settings.currentFont}${
-      settings.verticalScroll ? ' vertical' : ''
-    }`;
-    if (settings.verticalScroll) {
-      document.documentElement.style.setProperty('--animationSpeed', `0s`);
-      document.documentElement.style.overflowY = 'auto';
-      document.documentElement.style.overflowX = 'none';
-      document.documentElement.scrollTo(0, 0);
-      document.body.scrollTo(0, 0);
-      setTimeout((): void => {
-        const pageIndicator = document.body.querySelector(
-          `body > .zoomPanel > .chapterWrapper [data-page="${settings.currentPage}"]`,
-        );
-        if (pageIndicator) {
-          document.documentElement.scrollTo(
-            0,
-            pageIndicator.getBoundingClientRect().top,
-          );
-        }
-        settings = recalculateColumnConfig(settings, true);
-      }, 0);      
-    } else {
-      document.documentElement.scrollTo(0, 0);
-      document.body.scrollTo(0, 0);
-      document.documentElement.style.setProperty('--animationSpeed', `0.5s`);
-      document.documentElement.style.overflowY = 'hidden';
-      document.documentElement.style.overflowX = 'hidden';
-      settings = recalculateColumnConfig(settings, true);
-      settings.readMode = true;
-      if (zoomPanel && buttonsPanel) {
-        settings.animateEnabled = false;
-        document.documentElement.style.setProperty('--viewerSnapType', `none`);
-        const scrollFix = (document.body.scrollLeft * -1) / 3;
-        settings.scrollFix = scrollFix;
-        document.documentElement.style.setProperty(
-          '--horizontalScrollFix',
-          `${settings.scrollFix}px`,
-        );
-        handleZoomAnimation = true;
-        zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
-        buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
-      }
-    }
-  });
-  fullScreenModeButton?.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else {
-      document.body.requestFullscreen();
-    }
-  });
-  nightModeButton?.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    if (!handleZoomAnimation) {
-      settings.invertViewerColor = !settings.invertViewerColor;
-      document.documentElement.style.setProperty(
-        '--invertViewerColor',
-        `${settings.invertViewerColor ? 1 : 0}`,
-      );
-    }
-  });
-  sepiaModeButton?.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    if (!handleZoomAnimation) {
-      settings.sepiaViewerColor = !settings.sepiaViewerColor;
-      document.documentElement.style.setProperty(
-        '--sepiaViewerColor',
-        `${settings.sepiaViewerColor ? 1 : 0}`,
-      );
-      document.documentElement.style.setProperty(
-        '--contrastViewerColor',
-        `${settings.sepiaViewerColor ? 0.6 : 1}`,
-      );
-    }
-  });
-  increaseFontButton?.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    if (settings.currentFontSize < 32) {
-      settings.currentFontSize += 2;
-      updateFontInfo();
-    }
-  });
-  decreaseFontButton?.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    if (settings.currentFontSize > 8) {
-      settings.currentFontSize -= 2;
-      updateFontInfo();
-    }
-  });
-  increaseLineHeight?.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    if (settings.lineHeight < 2) {
-      settings.lineHeight += 0.1;
-      updateFontInfo();
-    }
-  });
-  decreaseLineHeight?.addEventListener('click', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    if (settings.lineHeight > 1) {
-      settings.lineHeight -= 0.1;
-      updateFontInfo();
-    }
-  });
+  /**
+   * The click toggles the mode (read mode or buttons)
+   */
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
-    if (settings.animateEnabled) {
-      settings.readMode = !settings.readMode;
-      if (zoomPanel && buttonsPanel) {
-        if (!settings.verticalScroll) {
-          settings.animateEnabled = false;
+    if (getSettings().animateEnabled) {
+      
+      if (getSettings().currentSelection && !getSettings().draggingSelection) {
+        updateSettings({currentSelection: null});
+        drawCurrentSelection(null);
+      }
+      updateSettings({ readMode: !getSettings().readMode });
+      if (domUI.zoomPanel && domUI.buttonsPanel) {
+        if (!getSettings().verticalScroll) {
+          updateSettings({ animateEnabled: false });
           document.documentElement.style.setProperty(
             '--viewerSnapType',
             `none`,
           );
-          if (settings.readMode) {
+          if (getSettings().readMode) {
             const scrollFix = (document.body.scrollLeft * -1) / 3;
-            settings.scrollFix = scrollFix;
+            updateSettings({ scrollFix });
             document.documentElement.style.setProperty(
               '--horizontalScrollFix',
-              `${settings.scrollFix}px`,
+              `${getSettings().scrollFix}px`,
             );
           } else {
             const scrollFix = document.body.scrollLeft * 0.25;
-            settings.scrollFix = scrollFix;
+            updateSettings({ scrollFix });
             document.documentElement.style.setProperty(
               '--horizontalScrollFix',
-              `${settings.scrollFix}px`,
+              `${getSettings().scrollFix}px`,
             );
           }
-          handleZoomAnimation = true;
-          zoomPanel.className = `zoomPanel${settings.readMode ? ' zoom' : ''}`;
+          updateSettings({ handleZoomAnimation: true });
+          domUI.zoomPanel.className = `zoomPanel${getSettings().readMode ? ' zoom' : ''}`;
         }
-        buttonsPanel.className = `buttons${settings.readMode ? ' zoom' : ''}`;
+        domUI.buttonsPanel.className = `buttons${getSettings().readMode ? ' zoom' : ''}`;
       }
     }
   });
 
-  document.body.addEventListener('scroll', onBodyScroll);  
-  document.addEventListener('scroll', onBodyScroll);
-
+  /**
+   * When a new font is loaded we need to recalculate the colum configuration
+   */
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then((): void => {
-      recalculateAndScroll();
+      recalculateColumnConfig(true);
+    }).catch((err): void => {
+      // eslint-disable-next-line no-console
+      console.error(err);
     });
   }
 
-  document.body
-    .querySelectorAll<HTMLButtonElement>('body > .buttons > .selectTypography')
-    .forEach((button): void => {
-      button?.addEventListener('click', (ev: Event): void => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        settings.currentFont = button.value;
-        document.body.className = `viewer epub ${settings.currentFont}${
-          settings.verticalScroll ? ' vertical' : ''
-        }`;
-        updateFontInfo();
-      });
-    });
-
+  /**
+   * Events to detect when the zoom animation is ended
+   */
   [
     'webkitTransitionEnd',
     'otransitionend',
@@ -318,20 +83,25 @@ const onWindowLoad = (): void => {
     'msTransitionEnd',
     'transitionend',
   ].forEach((eventName): void => {
-    zoomPanel.addEventListener(
+    domUI.zoomPanel?.addEventListener(
       eventName,
       (): void => {
-        if (handleZoomAnimation) {
-          handleZoomAnimation = false;
-          const newScrollX = document.body.scrollLeft - settings.scrollFix;
+        if (getSettings().handleZoomAnimation) {
+          updateSettings({ handleZoomAnimation: false });
+          const newScrollX = document.body.scrollLeft - getSettings().scrollFix;
           document.body.scrollTo(newScrollX, 0);
-          settings.scrollFix = 0;
+          updateSettings({ scrollFix: 0 });
           document.documentElement.style.setProperty('--animationSpeed', `0s`);
           document.documentElement.style.setProperty(
             '--horizontalScrollFix',
-            `${settings.scrollFix}px`,
+            `${getSettings().scrollFix}px`,
           );
-          recalculate();
+          recalculateColumnConfig(false);
+          /**
+           * If we wait to the next screen render frame: 
+           * it avoids the visual jump on the scroll
+           * works really well!!!
+           */
           window.requestAnimationFrame((): void => {
             document.documentElement.style.setProperty(
               '--animationSpeed',
@@ -341,7 +111,7 @@ const onWindowLoad = (): void => {
               '--viewerSnapType',
               `x mandatory`,
             );
-            settings.animateEnabled = true;
+            updateSettings({ animateEnabled: true });
             document.body.scrollTo(newScrollX, 0);
           });
         }
@@ -349,7 +119,19 @@ const onWindowLoad = (): void => {
       false,
     );
   });
+  if (domUI.zoomPanel) {
+    domUI.zoomPanel.style.marginTop = '0';
+  }
 };
 
+/**
+ * We need to recalculate the columns on resize
+ */
+window.addEventListener('resize', (): void => {
+  recalculateColumnConfig(true);
+});
+
+/**
+ * Main entry point
+ */
 window.addEventListener('load', onWindowLoad);
-window.addEventListener('resize', recalculateAndScroll);
