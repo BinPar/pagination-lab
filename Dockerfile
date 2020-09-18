@@ -1,2 +1,2 @@
-FROM nginx
-COPY web /usr/share/nginx/html
+FROM pierrezemb/gostatic
+COPY web /srv/http

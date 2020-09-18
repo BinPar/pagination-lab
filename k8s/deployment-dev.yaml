@@ -19,7 +19,7 @@ spec:
   ports:
     - port: 80
       protocol: TCP
-      targetPort: 80
+      targetPort: 8043
   selector:
     run: www-dev
   sessionAffinity: None
@@ -100,11 +100,11 @@ spec:
             - configMapRef:
                 name: www-config-dev
           ports:
-            - containerPort: 80
+            - containerPort: 8043
           readinessProbe:
             httpGet:
               path: /healthcheck
-              port: 80
+              port: 8043
               scheme: HTTP
             failureThreshold: 2
             timeoutSeconds: 5
