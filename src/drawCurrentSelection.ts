@@ -1,6 +1,10 @@
 import clientToZoomPanelCoordinates from './clientToZoomPanelCoordinates';
 import deduplicateRectangles from './deduplicateRectangles';
-import { fromMouseEvent } from './model/SyntheticEvent';
+import {
+  fromMouseEvent,
+  fromTouchEvent,
+  SyntheticEvent,
+} from './model/SyntheticEvent';
 import selectWordFromPoint from './selectWordFromPoint';
 import { getSettings, updateSettings } from './settings';
 
@@ -42,10 +46,18 @@ const addExtensorsToHighLight = (
   textSelection: HTMLDivElement,
   left: boolean,
 ): HTMLDivElement => {
-  const extension = document.createElement('div');
-  extension.className = `highLight ${left ? 'left' : 'right'}Extensor`;
+  let extension: HTMLDivElement;
+  let newExtension = true;
+  const prevExtension = highLightsWrapper.querySelector<HTMLDivElement>(`.${left ? 'left' : 'right'}Extensor`);
+  if(prevExtension) {
+    extension = prevExtension;
+    newExtension = false;
+  } else {
+    extension = document.createElement('div');
+    extension.className = `highLight ${left ? 'left' : 'right'}Extensor`;
+  }
   extension.style.top = textSelection.style.top;
-  const fontSize = getSettings().currentFontSize;
+  const fontSize = getSettings().currentFontSize * 1.5;
   const leftPos = Number.parseFloat(textSelection.style.left);
   const height = Number.parseFloat(textSelection.style.height);
   const width = Number.parseFloat(textSelection.style.width);
@@ -57,16 +69,19 @@ const addExtensorsToHighLight = (
     extension.style.left = `${leftPos + width}px`;
   }
   extension.style.width = `${fontSize}px`;
-  extension.style.height = `${fontSize}px`;
-  extension.addEventListener('mousedown', (ev: Event): void =>
-    onMouseDown(ev, extension, left),
-  );
-  extension.addEventListener('touchStart', (ev: Event): void => {
-    ev.preventDefault();
-    ev.stopPropagation();        
-    onMouseDown(ev, extension, left);
-  });
-  extension.addEventListener('click', onClick);
+  extension.style.height = `${fontSize}px`;  
+  if (newExtension) {
+    extension.addEventListener('mousedown', (ev: Event): void =>
+      onMouseDown(ev, extension, left),
+    );
+    extension.addEventListener('touchstart', (ev: Event): void => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      onMouseDown(ev, extension, left);
+    });
+    extension.addEventListener('click', onClick);
+    highLightsWrapper.append(extension);
+  }
   return extension;
 };
 /**
@@ -99,7 +114,7 @@ const drawCurrentSelection = (selection: Range | null): void => {
       .forEach((label, i): void => {
         if (i < rects?.length) {
           reusable.push(label as HTMLDivElement);
-        } else {
+        } else if (label.className.indexOf('Extensor') === -1) {
           label.remove();
         }
       });
@@ -123,12 +138,29 @@ const drawCurrentSelection = (selection: Range | null): void => {
       }
       // Add initial extensor
       if (i === 0) {
-        highLightsWrapper.append(addExtensorsToHighLight(highLight, true));
+        addExtensorsToHighLight(highLight, true);
       }
       // Add final extensor
       if (i === rects.length - 1) {
-        highLightsWrapper.append(addExtensorsToHighLight(highLight, false));
+        addExtensorsToHighLight(highLight, false);
       }
+    }
+  }
+};
+
+const processSelectionChange = (syntheticEvent: SyntheticEvent): void => {
+  const selection = selectWordFromPoint(syntheticEvent, false);
+  const { currentSelection } = getSettings();
+  if (currentSelection && selection) {
+    const newRange = currentSelection.cloneRange();
+    if (isDraggingLeft) {
+      newRange.setStart(selection?.startContainer, selection?.startOffset);
+    } else {
+      newRange.setEnd(selection?.endContainer, selection?.endOffset);
+    }
+    if (!newRange.collapsed) {
+      updateSettings({ currentSelection: newRange });
+      drawCurrentSelection(newRange);
     }
   }
 };
@@ -140,25 +172,22 @@ window.addEventListener('mousemove', (ev: Event): void => {
     ev.stopPropagation();
     const event = ev as MouseEvent;
     const syntheticEvent = fromMouseEvent(event);
-    const selection = selectWordFromPoint(syntheticEvent, false);
-    const { currentSelection } = getSettings();
-    if (currentSelection && selection) {
-      const newRange = currentSelection.cloneRange();
-      if (isDraggingLeft) {
-        newRange.setStart(selection?.startContainer, selection?.startOffset);
-      } else {
-        newRange.setEnd(selection?.endContainer, selection?.endOffset);
-      }
-      if (!newRange.collapsed) {
-        updateSettings({ currentSelection: newRange });
-        drawCurrentSelection(newRange);
-      }
-    }
+    syntheticEvent.clientY -= getSettings().currentFontSize * 1.5;
+    processSelectionChange(syntheticEvent);
+  }
+});
+
+window.addEventListener('touchmove', (ev: Event): void => {
+  if (draggingExtension) {
+    const event = ev as TouchEvent;
+    const syntheticEvent = fromTouchEvent(event);
+    syntheticEvent.clientY -= getSettings().currentFontSize * 1.5;
+    processSelectionChange(syntheticEvent);
   }
 });
 
 // End of dragging selection start or end
-window.addEventListener('mouseup', (ev: Event): void => {
+const endSelection = (ev: Event): void => {
   if (draggingExtension) {
     ev.preventDefault();
     ev.stopPropagation();
@@ -168,6 +197,9 @@ window.addEventListener('mouseup', (ev: Event): void => {
     }, 0);
     document.documentElement.style.setProperty('--dragCursor', 'grab');
   }
-});
+};
+
+window.addEventListener('mouseup', endSelection);
+window.addEventListener('touchend', endSelection, { passive: false });
 
 export default drawCurrentSelection;

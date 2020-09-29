@@ -20,6 +20,7 @@ const selectWordFromPoint = (ev: SyntheticEvent, word = true): Range | null => {
       return null;
     }
     chapterWrapper.style.userSelect = 'auto';
+    chapterWrapper.style.webkitUserSelect = 'auto';
     const range = getRangeFromPoint(ev);
     const selection = window.getSelection();
     if (selection) {
@@ -78,6 +79,7 @@ const selectWordFromPoint = (ev: SyntheticEvent, word = true): Range | null => {
       selection.removeAllRanges();
     }
     chapterWrapper.style.userSelect = 'none';
+    chapterWrapper.style.webkitUserSelect = 'none';
   }
   return result;
 }

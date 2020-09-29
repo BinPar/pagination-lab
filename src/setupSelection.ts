@@ -165,17 +165,6 @@ const setupSelection = (): void => {
         ev.stopPropagation();
       }
     });
-
-    document.addEventListener('selectionchange', (ev): void => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      setTimeout((): void => {
-        const selection = window.getSelection();
-        if (selection && selection.type === 'Range') {
-          clearSelection();
-        }
-      }, 100);
-    });
   }
 };
 
