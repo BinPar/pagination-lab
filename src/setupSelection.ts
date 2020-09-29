@@ -3,7 +3,11 @@ import selectWordFromPoint from './selectWordFromPoint';
 import drawCurrentSelection from './drawCurrentSelection';
 import { updateSettings, getSettings } from './settings';
 import findNearestSnap from './findNearestSnap';
-import { fromEvent, SyntheticEvent } from './model/SyntheticEvent';
+import {
+  fromMouseEvent,
+  fromTouchEvent,
+  SyntheticEvent,
+} from './model/SyntheticEvent';
 
 /**
  * Setups the text selection
@@ -17,6 +21,12 @@ const setupSelection = (): void => {
   let currentSelection: Range | null = null;
   let isMouseMove = false;
   let isMouseDown = false;
+
+  const clearSelectionTimeOut = (): void => {
+    if (selectionTimeOut) {
+      clearTimeout(selectionTimeOut);
+    }
+  };
 
   const startSelection = (event: SyntheticEvent): void => {
     currentSelection = selectWordFromPoint(event);
@@ -32,28 +42,42 @@ const setupSelection = (): void => {
       });
     }
 
+    const onSelectionStart = (syntheticEvent: SyntheticEvent): void => {
+      isMouseMove = false;
+      isMouseDown = true;
+      document.documentElement.style.setProperty('--dragCursor', 'grabbing');
+      selectionTimeOut = setTimeout((): void => {
+        startSelection(syntheticEvent);
+      }, getSettings().selectionTimeOut);
+    };
+
     content.addEventListener('mousedown', (ev): void => {
       const event = ev as MouseEvent;
-      const syntheticEvent = fromEvent(event);
+      const syntheticEvent = fromMouseEvent(event);
       if (event.button === 0) {
-        isMouseMove = false;
-        isMouseDown = true;
         ev.preventDefault();
         ev.stopPropagation();
         document.documentElement.style.setProperty('--viewerSnapType', `none`);
-        document.documentElement.style.setProperty('--dragCursor', 'grabbing');
-        selectionTimeOut = setTimeout((): void => {
-          startSelection(syntheticEvent);
-        }, getSettings().selectionTimeOut);
+        onSelectionStart(syntheticEvent);
       } else if (event.button === 2 && getSettings().selectWithRightClick) {
         startSelection(syntheticEvent);
       }
     });
 
-    window.addEventListener('mouseup', (ev: Event): void => {
-      if (selectionTimeOut) {
-        clearTimeout(selectionTimeOut);
+    content.addEventListener('touchstart', (ev): void => {
+      const event = ev as TouchEvent;
+      const syntheticEvent = fromTouchEvent(event);
+      if (event.touches.length === 1) {
+        onSelectionStart(syntheticEvent);
       }
+    });
+
+    content.addEventListener('touchmove', clearSelectionTimeOut);
+    
+    content.addEventListener('touchend', clearSelectionTimeOut);
+
+    window.addEventListener('mouseup', (ev: Event): void => {
+      clearSelectionTimeOut();
       if (isMouseDown && isMouseMove && !getSettings().draggingSelection) {
         isMouseMove = false;
         if (getSettings().animateEnabled && !getSettings().verticalScroll) {
@@ -96,9 +120,7 @@ const setupSelection = (): void => {
     });
 
     window.addEventListener('mousemove', (ev: Event): void => {
-      if (selectionTimeOut) {
-        clearTimeout(selectionTimeOut);
-      }
+      clearSelectionTimeOut();
       if (isMouseDown) {
         const event = ev as MouseEvent;
         isMouseMove = true;
@@ -113,7 +135,7 @@ const setupSelection = (): void => {
         }
       } else if (getSettings().debugSelectOnHover) {
         const event = ev as MouseEvent;
-        const syntheticEvent = fromEvent(event);
+        const syntheticEvent = fromMouseEvent(event);
         currentSelection = selectWordFromPoint(syntheticEvent);
         updateSettings({ currentSelection });
         drawCurrentSelection(currentSelection);
@@ -130,10 +152,12 @@ const setupSelection = (): void => {
     document.addEventListener('selectionchange', (ev): void => {
       ev.preventDefault();
       ev.stopPropagation();
-      const selection = window.getSelection();
-      if (selection && selection.type === 'Range') {
-        clearSelection();
-      }
+      setTimeout((): void => {
+        const selection = window.getSelection();
+        if (selection && selection.type === 'Range') {
+          clearSelection();
+        }
+      }, 100);
     });
   }
 };

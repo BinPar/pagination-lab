@@ -1,6 +1,6 @@
 import clientToZoomPanelCoordinates from './clientToZoomPanelCoordinates';
 import deduplicateRectangles from './deduplicateRectangles';
-import { fromEvent } from './model/SyntheticEvent';
+import { fromMouseEvent } from './model/SyntheticEvent';
 import selectWordFromPoint from './selectWordFromPoint';
 import { getSettings, updateSettings } from './settings';
 
@@ -134,7 +134,7 @@ window.addEventListener('mousemove', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
     const event = ev as MouseEvent;
-    const syntheticEvent = fromEvent(event);
+    const syntheticEvent = fromMouseEvent(event);
     const selection = selectWordFromPoint(syntheticEvent, false);
     const { currentSelection } = getSettings();
     if (currentSelection && selection) {

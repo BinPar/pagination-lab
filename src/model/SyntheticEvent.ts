@@ -11,10 +11,25 @@ export interface SyntheticEvent {
  * Generates a synthetic event from a mouse event
  * @param ev Mouse event to generate the synthetic event
  */
-export const fromEvent = (ev: MouseEvent): SyntheticEvent => {
+export const fromMouseEvent = (ev: MouseEvent): SyntheticEvent => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const {rangeParent, rangeOffset} = ev as any;
   const {clientX, clientY}  = ev;
+  return {
+    rangeParent,
+    rangeOffset,
+    clientX,
+    clientY,
+  };
+}
+/**
+ * Generates a synthetic event from a touch event
+ * @param ev Touch event to generate the synthetic event
+ */
+export const fromTouchEvent = (ev: TouchEvent): SyntheticEvent => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const {rangeParent, rangeOffset} = ev as any;
+  const {clientX, clientY}  = ev.touches[0];
   return {
     rangeParent,
     rangeOffset,
