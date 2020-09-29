@@ -21,8 +21,10 @@ const initialSettings: Settings = {
   handleZoomAnimation: false,
   currentSelection: null,
   disableContextMenu: true,
+  selectWithRightClick: true,
   debugSelectOnHover: false,
   draggingSelection: false,
+  selectionTimeOut: 500,
 };
 
 /**

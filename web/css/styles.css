@@ -88,6 +88,7 @@ body > .zoomPanel > .chapterWrapper {
   clear: both;
   cursor: var(--dragCursor, grab);
   user-select: none;
+  -webkit-user-select: none;
 }
 
 body.vertical > .zoomPanel > .chapterWrapper {
@@ -201,6 +202,7 @@ body > .zoomPanel > .labelsForEveryPage > .label p {
   font-weight: 600;
   line-height: 3em;
   user-select: none;
+  -webkit-user-select: none;
   pointer-events: none;
 }
 
@@ -209,6 +211,7 @@ body > .buttons {
   top: 0px;
   right: 0px;
   user-select: none;
+  -webkit-user-select: none;
   transition-property: top;
   transition-duration: 0.5s;
   transition-timing-function: cubic-bezier();
@@ -233,6 +236,7 @@ body > .buttons button {
   color: white;
   outline: none;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 @font-face {

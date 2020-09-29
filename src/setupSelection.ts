@@ -1,47 +1,100 @@
-import clearSelection from './clearSelection';
 import selectWordFromPoint from './selectWordFromPoint';
 import drawCurrentSelection from './drawCurrentSelection';
 import { updateSettings, getSettings } from './settings';
 import findNearestSnap from './findNearestSnap';
+import {
+  fromMouseEvent,
+  fromTouchEvent,
+  SyntheticEvent,
+} from './model/SyntheticEvent';
 
 /**
  * Setups the text selection
  */
 const setupSelection = (): void => {
+  let selectionTimeOut: NodeJS.Timeout | null;
   const content = document.body.querySelector('body > .zoomPanel');
-  const chapterWrapper = document.body.querySelector('body > .zoomPanel .chapterWrapper') as HTMLDivElement;
+  const chapterWrapper = document.body.querySelector(
+    'body > .zoomPanel .chapterWrapper',
+  ) as HTMLDivElement;
   let currentSelection: Range | null = null;
   let isMouseMove = false;
   let isMouseDown = false;
-  if (content && chapterWrapper) {
 
+  const clearSelectionTimeOut = (): void => {
+    if (selectionTimeOut) {
+      clearTimeout(selectionTimeOut);
+    }
+  };
+
+  const startSelection = (event: SyntheticEvent): void => {
+    currentSelection = selectWordFromPoint(event);
+    updateSettings({ currentSelection });
+    drawCurrentSelection(currentSelection);
+    isMouseMove = true;
+  };
+
+  if (content && chapterWrapper) {
     if (getSettings().disableContextMenu) {
       document.addEventListener('contextmenu', (ev): void => {
-        ev.preventDefault()
+        ev.preventDefault();
       });
     }
 
+    const onSelectionStart = (syntheticEvent: SyntheticEvent): void => {
+      isMouseMove = false;
+      isMouseDown = true;
+      document.documentElement.style.setProperty('--dragCursor', 'grabbing');
+      selectionTimeOut = setTimeout((): void => {
+        startSelection(syntheticEvent);
+      }, getSettings().selectionTimeOut);
+    };
+
+    /**
+     * Avoids an unusual bug in Safari that raises the mouseDown after touchstart
+     * breaking the snap system
+     */
+    let avoidSnapChange = false;
+
     content.addEventListener('mousedown', (ev): void => {
       const event = ev as MouseEvent;
+      const syntheticEvent = fromMouseEvent(event);
       if (event.button === 0) {
-        isMouseMove = false;
-        isMouseDown = true;
         ev.preventDefault();
         ev.stopPropagation();
-        document.documentElement.style.setProperty(
-          '--viewerSnapType',
-          `none`,
-        );
-        document.documentElement.style.setProperty('--dragCursor', 'grabbing');
-      } else if (event.button === 2) {
-        currentSelection = selectWordFromPoint(event);
-        updateSettings({ currentSelection });
-        drawCurrentSelection(currentSelection);
+        if (!avoidSnapChange) {
+          document.documentElement.style.setProperty(
+            '--viewerSnapType',
+            `none`,
+          );
+        }
+        onSelectionStart(syntheticEvent);
+      } else if (event.button === 2 && getSettings().selectWithRightClick) {
+        startSelection(syntheticEvent);
       }
     });
 
+    content.addEventListener('touchstart', (ev): void => {
+      avoidSnapChange = true;
+      const event = ev as TouchEvent;
+      const syntheticEvent = fromTouchEvent(event);
+      if (event.touches.length === 1) {
+        onSelectionStart(syntheticEvent);
+      }
+    });
+
+    content.addEventListener('touchmove', clearSelectionTimeOut);
+
+    content.addEventListener('touchend', (): void => {
+      clearSelectionTimeOut();
+      setTimeout((): void => {
+        avoidSnapChange = false;
+      }, 100);
+    });
+
     window.addEventListener('mouseup', (ev: Event): void => {
-      if (isMouseDown && isMouseMove) {
+      clearSelectionTimeOut();
+      if (isMouseDown && isMouseMove && !getSettings().draggingSelection) {
         isMouseMove = false;
         if (getSettings().animateEnabled && !getSettings().verticalScroll) {
           updateSettings({
@@ -56,20 +109,20 @@ const setupSelection = (): void => {
           const delta = (targetPosition - currentPosition) / 10;
           let iteration = 0;
           const animate = (): void => {
-            if (iteration<10) {
+            if (iteration < 10) {
               iteration++;
               document.body.scrollBy(delta, 0);
               window.requestAnimationFrame(animate);
             } else {
               document.documentElement.style.setProperty(
-                '--viewerSnapType',   
+                '--viewerSnapType',
                 `x mandatory`,
               );
               updateSettings({
                 animateEnabled: true,
               });
             }
-          }
+          };
           window.requestAnimationFrame(animate);
         } else {
           document.documentElement.style.setProperty(
@@ -83,18 +136,23 @@ const setupSelection = (): void => {
     });
 
     window.addEventListener('mousemove', (ev: Event): void => {
+      clearSelectionTimeOut();
       if (isMouseDown) {
         const event = ev as MouseEvent;
         isMouseMove = true;
         if (getSettings().verticalScroll) {
           const scrollingElement = document.scrollingElement || document.body;
-          scrollingElement.scrollBy(0, -event.movementY / window.devicePixelRatio);
+          scrollingElement.scrollBy(
+            0,
+            -event.movementY / window.devicePixelRatio,
+          );
         } else {
           document.body.scrollBy(-event.movementX / window.devicePixelRatio, 0);
         }
       } else if (getSettings().debugSelectOnHover) {
         const event = ev as MouseEvent;
-        currentSelection = selectWordFromPoint(event);
+        const syntheticEvent = fromMouseEvent(event);
+        currentSelection = selectWordFromPoint(syntheticEvent);
         updateSettings({ currentSelection });
         drawCurrentSelection(currentSelection);
       }
@@ -106,17 +164,7 @@ const setupSelection = (): void => {
         ev.stopPropagation();
       }
     });
-
-    document.addEventListener('selectionchange', (ev): void => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const selection = window.getSelection();
-      if (selection && selection.type === 'Range') {
-        clearSelection();
-      }
-    });
   }
-
-}
+};
 
 export default setupSelection;

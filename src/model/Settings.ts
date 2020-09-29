@@ -16,6 +16,8 @@ export default interface Settings {
   handleZoomAnimation: boolean;
   currentSelection: Range | null;
   disableContextMenu: boolean;
+  selectWithRightClick: boolean;
   debugSelectOnHover: boolean;
   draggingSelection: boolean;
+  selectionTimeOut: number;
 };

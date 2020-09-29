@@ -25,38 +25,44 @@ const onWindowLoad = (): void => {
   document.body.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     if (getSettings().animateEnabled) {
-      
-      if (getSettings().currentSelection && !getSettings().draggingSelection) {
-        updateSettings({currentSelection: null});
-        drawCurrentSelection(null);
-      }
-      updateSettings({ readMode: !getSettings().readMode });
-      if (domUI.zoomPanel && domUI.buttonsPanel) {
-        if (!getSettings().verticalScroll) {
-          updateSettings({ animateEnabled: false });
-          document.documentElement.style.setProperty(
-            '--viewerSnapType',
-            `none`,
-          );
-          if (getSettings().readMode) {
-            const scrollFix = (document.body.scrollLeft * -1) / 3;
-            updateSettings({ scrollFix });
-            document.documentElement.style.setProperty(
-              '--horizontalScrollFix',
-              `${getSettings().scrollFix}px`,
-            );
-          } else {
-            const scrollFix = document.body.scrollLeft * 0.25;
-            updateSettings({ scrollFix });
-            document.documentElement.style.setProperty(
-              '--horizontalScrollFix',
-              `${getSettings().scrollFix}px`,
-            );
-          }
-          updateSettings({ handleZoomAnimation: true });
-          domUI.zoomPanel.className = `zoomPanel${getSettings().readMode ? ' zoom' : ''}`;
+      if (getSettings().currentSelection) {
+        if (!getSettings().draggingSelection) {
+          updateSettings({ currentSelection: null });
+          drawCurrentSelection(null);
         }
-        domUI.buttonsPanel.className = `buttons${getSettings().readMode ? ' zoom' : ''}`;
+      } else {
+        updateSettings({ readMode: !getSettings().readMode });
+        if (domUI.zoomPanel && domUI.buttonsPanel) {
+          if (!getSettings().verticalScroll) {
+            updateSettings({ animateEnabled: false });
+            document.documentElement.style.setProperty(
+              '--viewerSnapType',
+              `none`,
+            );
+            if (getSettings().readMode) {
+              const scrollFix = (document.body.scrollLeft * -1) / 3;
+              updateSettings({ scrollFix });
+              document.documentElement.style.setProperty(
+                '--horizontalScrollFix',
+                `${getSettings().scrollFix}px`,
+              );
+            } else {
+              const scrollFix = document.body.scrollLeft * 0.25;
+              updateSettings({ scrollFix });
+              document.documentElement.style.setProperty(
+                '--horizontalScrollFix',
+                `${getSettings().scrollFix}px`,
+              );
+            }
+            updateSettings({ handleZoomAnimation: true });
+            domUI.zoomPanel.className = `zoomPanel${
+              getSettings().readMode ? ' zoom' : ''
+            }`;
+          }
+          domUI.buttonsPanel.className = `buttons${
+            getSettings().readMode ? ' zoom' : ''
+          }`;
+        }
       }
     }
   });
@@ -65,12 +71,14 @@ const onWindowLoad = (): void => {
    * When a new font is loaded we need to recalculate the colum configuration
    */
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then((): void => {
-      recalculateColumnConfig(true);
-    }).catch((err): void => {
-      // eslint-disable-next-line no-console
-      console.error(err);
-    });
+    document.fonts.ready
+      .then((): void => {
+        recalculateColumnConfig(true);
+      })
+      .catch((err): void => {
+        // eslint-disable-next-line no-console
+        console.error(err);
+      });
   }
 
   /**
@@ -98,7 +106,7 @@ const onWindowLoad = (): void => {
           );
           recalculateColumnConfig(false);
           /**
-           * If we wait to the next screen render frame: 
+           * If we wait to the next screen render frame:
            * it avoids the visual jump on the scroll
            * works really well!!!
            */

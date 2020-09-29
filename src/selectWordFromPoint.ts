@@ -1,4 +1,5 @@
 import getRangeFromPoint from "./getRangeFromPoint";
+import { SyntheticEvent } from "./model/SyntheticEvent";
 import { getSettings } from './settings';
 
 let chapterWrapper: HTMLDivElement;
@@ -8,7 +9,7 @@ let chapterWrapper: HTMLDivElement;
  * @param ev Mouse Event
  * @returns Range of the selection
  */
-const selectWordFromPoint = (ev: MouseEvent, word = true): Range | null => {
+const selectWordFromPoint = (ev: SyntheticEvent, word = true): Range | null => {
   let result: Range | null = null;
   if (!chapterWrapper) {
     chapterWrapper = document.body.querySelector('body > .zoomPanel .chapterWrapper') as HTMLDivElement;
@@ -19,6 +20,7 @@ const selectWordFromPoint = (ev: MouseEvent, word = true): Range | null => {
       return null;
     }
     chapterWrapper.style.userSelect = 'auto';
+    chapterWrapper.style.webkitUserSelect = 'auto';
     const range = getRangeFromPoint(ev);
     const selection = window.getSelection();
     if (selection) {
@@ -77,6 +79,7 @@ const selectWordFromPoint = (ev: MouseEvent, word = true): Range | null => {
       selection.removeAllRanges();
     }
     chapterWrapper.style.userSelect = 'none';
+    chapterWrapper.style.webkitUserSelect = 'none';
   }
   return result;
 }
