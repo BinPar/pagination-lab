@@ -51,13 +51,24 @@ const setupSelection = (): void => {
       }, getSettings().selectionTimeOut);
     };
 
+    /**
+     * Avoids an unusual bug in Safari that raises the mouseDown after touchstart
+     * breaking the snap system
+     */
+    let avoidSnapChange = false;
+
     content.addEventListener('mousedown', (ev): void => {
       const event = ev as MouseEvent;
       const syntheticEvent = fromMouseEvent(event);
       if (event.button === 0) {
         ev.preventDefault();
         ev.stopPropagation();
-        document.documentElement.style.setProperty('--viewerSnapType', `none`);
+        if (!avoidSnapChange) {
+          document.documentElement.style.setProperty(
+            '--viewerSnapType',
+            `none`,
+          );
+        }
         onSelectionStart(syntheticEvent);
       } else if (event.button === 2 && getSettings().selectWithRightClick) {
         startSelection(syntheticEvent);
@@ -65,6 +76,7 @@ const setupSelection = (): void => {
     });
 
     content.addEventListener('touchstart', (ev): void => {
+      avoidSnapChange = true;
       const event = ev as TouchEvent;
       const syntheticEvent = fromTouchEvent(event);
       if (event.touches.length === 1) {
@@ -73,8 +85,13 @@ const setupSelection = (): void => {
     });
 
     content.addEventListener('touchmove', clearSelectionTimeOut);
-    
-    content.addEventListener('touchend', clearSelectionTimeOut);
+
+    content.addEventListener('touchend', (): void => {
+      clearSelectionTimeOut();
+      setTimeout((): void => {
+        avoidSnapChange = false;
+      }, 100);
+    });
 
     window.addEventListener('mouseup', (ev: Event): void => {
       clearSelectionTimeOut();

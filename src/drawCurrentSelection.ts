@@ -61,6 +61,11 @@ const addExtensorsToHighLight = (
   extension.addEventListener('mousedown', (ev: Event): void =>
     onMouseDown(ev, extension, left),
   );
+  extension.addEventListener('touchStart', (ev: Event): void => {
+    ev.preventDefault();
+    ev.stopPropagation();        
+    onMouseDown(ev, extension, left);
+  });
   extension.addEventListener('click', onClick);
   return extension;
 };
@@ -111,7 +116,7 @@ const drawCurrentSelection = (selection: Range | null): void => {
       const fixZoom = zoomPanelCoordinates.fixZoom || 1;
       highLight.style.left = `${zoomPanelCoordinates.x - 1}px`;
       highLight.style.top = `${zoomPanelCoordinates.y - 1}px`;
-      highLight.style.width = `${rect.width * fixZoom + 2}px`;
+      highLight.style.width = `${rect.width * fixZoom + 1}px`;
       highLight.style.height = `${rect.height * fixZoom + 2}px`;
       if (i >= reusable.length) {
         highLightsWrapper.append(highLight);
