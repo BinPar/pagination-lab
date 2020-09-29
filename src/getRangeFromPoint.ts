@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { SyntheticEvent } from "./model/SyntheticEvent";
 
 /**
  * This is crazy... the selection from point is not standard jet
@@ -9,7 +10,7 @@
  * @param evt {MouseEvent} Mouse event to do the selection
  * @returns Selection Range
  */
-const getRangeFromPoint = (evt: any): Range => {
+const getRangeFromPoint = (evt: SyntheticEvent): Range => {
   let range: any;
   const x = evt.clientX;
   const y = evt.clientY;

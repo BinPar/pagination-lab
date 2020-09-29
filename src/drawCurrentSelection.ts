@@ -1,5 +1,6 @@
 import clientToZoomPanelCoordinates from './clientToZoomPanelCoordinates';
 import deduplicateRectangles from './deduplicateRectangles';
+import { fromEvent } from './model/SyntheticEvent';
 import selectWordFromPoint from './selectWordFromPoint';
 import { getSettings, updateSettings } from './settings';
 
@@ -8,14 +9,21 @@ let draggingExtension: HTMLDivElement | null = null;
 let isDraggingLeft = false;
 
 // Start of dragging selection start or end
-const onMouseDown = (ev: Event, extension: HTMLDivElement, left: boolean): void => {
+const onMouseDown = (
+  ev: Event,
+  extension: HTMLDivElement,
+  left: boolean,
+): void => {
   ev.preventDefault();
   ev.stopPropagation();
   draggingExtension = extension;
   isDraggingLeft = left;
   updateSettings({ draggingSelection: true });
-  document.documentElement.style.setProperty('--dragCursor', left ? 'w-resize' : 'e-resize');
-}
+  document.documentElement.style.setProperty(
+    '--dragCursor',
+    left ? 'w-resize' : 'e-resize',
+  );
+};
 
 // Click on start or end selection
 const onClick = (ev: Event): void => {
@@ -30,7 +38,10 @@ const onClick = (ev: Event): void => {
  * @param left is it the left extensor or the one on the right
  * @returns {HTMLDivElement} div element of the text selector
  */
-const addExtensorsToHighLight = (textSelection: HTMLDivElement, left: boolean): HTMLDivElement => {
+const addExtensorsToHighLight = (
+  textSelection: HTMLDivElement,
+  left: boolean,
+): HTMLDivElement => {
   const extension = document.createElement('div');
   extension.className = `highLight ${left ? 'left' : 'right'}Extensor`;
   extension.style.top = textSelection.style.top;
@@ -47,18 +58,21 @@ const addExtensorsToHighLight = (textSelection: HTMLDivElement, left: boolean): 
   }
   extension.style.width = `${fontSize}px`;
   extension.style.height = `${fontSize}px`;
-  extension.addEventListener('mousedown', (ev: Event): void => onMouseDown(ev, extension, left));
+  extension.addEventListener('mousedown', (ev: Event): void =>
+    onMouseDown(ev, extension, left),
+  );
   extension.addEventListener('click', onClick);
   return extension;
-}
+};
 /**
  * Draws the current selection in the DOM
  * @param selection Selection to draw
  */
 const drawCurrentSelection = (selection: Range | null): void => {
-
   if (!highLightsWrapper) {
-    highLightsWrapper = document.body.querySelector('body > .zoomPanel .highLights') as HTMLDivElement;
+    highLightsWrapper = document.body.querySelector(
+      'body > .zoomPanel .highLights',
+    ) as HTMLDivElement;
   }
 
   if (!getSettings().animateEnabled) {
@@ -67,11 +81,9 @@ const drawCurrentSelection = (selection: Range | null): void => {
   }
 
   if (!selection) {
-    highLightsWrapper
-      .querySelectorAll('.highLight')
-      .forEach((label): void => {
-        label.remove();
-      });
+    highLightsWrapper.querySelectorAll('.highLight').forEach((label): void => {
+      label.remove();
+    });
   }
 
   const rects = deduplicateRectangles(selection?.getClientRects());
@@ -89,9 +101,13 @@ const drawCurrentSelection = (selection: Range | null): void => {
 
     for (let i = 0; i < rects.length; i++) {
       const rect = rects[i];
-      const highLight = i < reusable.length ? reusable[i] : document.createElement('div');
+      const highLight =
+        i < reusable.length ? reusable[i] : document.createElement('div');
       highLight.className = 'highLight';
-      const zoomPanelCoordinates = clientToZoomPanelCoordinates({ x: rect.left, y: rect.top });
+      const zoomPanelCoordinates = clientToZoomPanelCoordinates({
+        x: rect.left,
+        y: rect.top,
+      });
       const fixZoom = zoomPanelCoordinates.fixZoom || 1;
       highLight.style.left = `${zoomPanelCoordinates.x - 1}px`;
       highLight.style.top = `${zoomPanelCoordinates.y - 1}px`;
@@ -112,13 +128,14 @@ const drawCurrentSelection = (selection: Range | null): void => {
   }
 };
 
-// Dragging selection start or end 
+// Dragging selection start or end
 window.addEventListener('mousemove', (ev: Event): void => {
   if (draggingExtension) {
     ev.preventDefault();
     ev.stopPropagation();
     const event = ev as MouseEvent;
-    const selection = selectWordFromPoint(event, false);
+    const syntheticEvent = fromEvent(event);
+    const selection = selectWordFromPoint(syntheticEvent, false);
     const { currentSelection } = getSettings();
     if (currentSelection && selection) {
       const newRange = currentSelection.cloneRange();
@@ -135,16 +152,17 @@ window.addEventListener('mousemove', (ev: Event): void => {
   }
 });
 
-// End of dragging selection start or end 
+// End of dragging selection start or end
 window.addEventListener('mouseup', (ev: Event): void => {
   if (draggingExtension) {
     ev.preventDefault();
     ev.stopPropagation();
     draggingExtension = null;
-    updateSettings({ draggingSelection: false });
+    setTimeout((): void => {
+      updateSettings({ draggingSelection: false });
+    }, 0);
     document.documentElement.style.setProperty('--dragCursor', 'grab');
   }
 });
-
 
 export default drawCurrentSelection;
