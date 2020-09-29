@@ -1,4 +1,3 @@
-import clearSelection from './clearSelection';
 import selectWordFromPoint from './selectWordFromPoint';
 import drawCurrentSelection from './drawCurrentSelection';
 import { updateSettings, getSettings } from './settings';
