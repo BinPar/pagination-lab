@@ -105,6 +105,20 @@ export const setLineHeight = (lineHeight: number): void => {
 };
 
 /**
+ * Sets the default typography
+ * @param currentFont {string} font family name to set (baskerville-enc, helvetica-enc, americanTypewriter-enc...)
+ */
+export const setDefaultTypography = (currentFont: string): void => {
+  if (!getSettings().handleZoomAnimation) {
+    updateSettings({ currentFont });
+    document.body.className = `viewer epub ${getSettings().currentFont}${
+      getSettings().verticalScroll ? ' vertical' : ''
+    }`;
+    updateFontInfo();
+  }
+};
+
+/**
  * Global object that stores the viewer api interface
  */
 const flowViewer = {
@@ -113,6 +127,7 @@ const flowViewer = {
   setNightMode,
   setFontSize,
   setLineHeight,
+  setDefaultTypography,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
