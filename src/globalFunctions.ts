@@ -1,5 +1,6 @@
 import { getSettings, updateSettings } from './settings';
 import recalculateColumnConfig from './recalculateColumnConfig';
+import updateFontInfo from './updateFontInfo';
 
 /**
  * Sets the horizontal or vertical mode
@@ -81,10 +82,37 @@ export const setSepiaMode = (sepiaViewerColor: boolean): void => {
   }
 };
 
+/**
+ * Sets the font size of the text
+ * @param currentFontSize {number} size of the font to use (in pixels)
+ */
+export const setFontSize = (currentFontSize: number): void => {
+  if (!getSettings().handleZoomAnimation) {
+    updateSettings({ currentFontSize });
+    updateFontInfo();
+  }
+};
+
+/**
+ * Sets the line height of the text
+ * @param lineHeight {number} line height in em
+ */
+export const setLineHeight = (lineHeight: number): void => {
+  if (!getSettings().handleZoomAnimation) {
+    updateSettings({ lineHeight });
+    updateFontInfo();
+  }
+};
+
+/**
+ * Global object that stores the viewer api interface
+ */
 const flowViewer = {
   setVerticalMode,
   setSepiaMode,
-  setNightMode
+  setNightMode,
+  setFontSize,
+  setLineHeight,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

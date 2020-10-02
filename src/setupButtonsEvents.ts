@@ -1,7 +1,7 @@
 import { getSettings, updateSettings } from './settings';
 import getDomUI from './getDomUI';
 import updateFontInfo from './updateFontInfo';
-import { setVerticalMode, setNightMode } from './globalFunctions';
+import { setVerticalMode, setNightMode, setSepiaMode, setFontSize, setLineHeight } from './globalFunctions';
 
 /**
  * Setups all the buttons actions
@@ -16,9 +16,13 @@ const setupButtonsEvents = (): void => {
     ev.preventDefault();
     ev.stopPropagation();
     setVerticalMode(!getSettings().verticalScroll);
-    if (domUI.zoomPanel && domUI.buttonsPanel) {      
-      domUI.zoomPanel.className = `zoomPanel${getSettings().readMode ? ' zoom' : ''}`;
-      domUI.buttonsPanel.className = `buttons${getSettings().readMode ? ' zoom' : ''}`;
+    if (domUI.zoomPanel && domUI.buttonsPanel) {
+      domUI.zoomPanel.className = `zoomPanel${
+        getSettings().readMode ? ' zoom' : ''
+      }`;
+      domUI.buttonsPanel.className = `buttons${
+        getSettings().readMode ? ' zoom' : ''
+      }`;
     }
   });
 
@@ -50,19 +54,7 @@ const setupButtonsEvents = (): void => {
   domUI.sepiaModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (!getSettings().handleZoomAnimation) {
-      let { sepiaViewerColor } = getSettings();
-      sepiaViewerColor = !sepiaViewerColor;
-      updateSettings({ sepiaViewerColor });
-      document.documentElement.style.setProperty(
-        '--sepiaViewerColor',
-        `${sepiaViewerColor ? 1 : 0}`,
-      );
-      document.documentElement.style.setProperty(
-        '--contrastViewerColor',
-        `${sepiaViewerColor ? 0.6 : 1}`,
-      );
-    }
+    setSepiaMode(!getSettings().sepiaViewerColor);
   });
 
   /**
@@ -74,8 +66,7 @@ const setupButtonsEvents = (): void => {
     let { currentFontSize } = getSettings();
     if (currentFontSize < 32) {
       currentFontSize += 2;
-      updateSettings({ currentFontSize });
-      updateFontInfo();
+      setFontSize(currentFontSize);      
     }
   });
 
@@ -88,8 +79,7 @@ const setupButtonsEvents = (): void => {
     let { currentFontSize } = getSettings();
     if (currentFontSize > 8) {
       currentFontSize -= 2;
-      updateSettings({ currentFontSize });
-      updateFontInfo();
+      setFontSize(currentFontSize);
     }
   });
 
@@ -100,10 +90,9 @@ const setupButtonsEvents = (): void => {
     ev.preventDefault();
     ev.stopPropagation();
     let { lineHeight } = getSettings();
-    if (lineHeight < 2) {
+    if (lineHeight < 2) {      
       lineHeight += 0.1;
-      updateSettings({ lineHeight });
-      updateFontInfo();
+      setLineHeight(lineHeight);
     }
   });
 
@@ -116,8 +105,7 @@ const setupButtonsEvents = (): void => {
     let { lineHeight } = getSettings();
     if (lineHeight > 1) {
       lineHeight -= 0.1;
-      updateSettings({ lineHeight });
-      updateFontInfo();
+      setLineHeight(lineHeight);
     }
   });
 
@@ -133,11 +121,10 @@ const setupButtonsEvents = (): void => {
         updateSettings({ currentFont: button.value });
         document.body.className = `viewer epub ${getSettings().currentFont}${
           getSettings().verticalScroll ? ' vertical' : ''
-          }`;
+        }`;
         updateFontInfo();
       });
     });
-
-}
+};
 
 export default setupButtonsEvents;
