@@ -43,10 +43,10 @@ const setupSelection = (): void => {
 
     const onSelectionStart = (syntheticEvent: SyntheticEvent): void => {
       isMouseMove = false;
-      isMouseDown = true;
-      document.documentElement.style.setProperty('--dragCursor', 'grabbing');
+      isMouseDown = true;      
+      document.documentElement.style.setProperty('--dragCursor', 'grabbing');      
       selectionTimeOut = setTimeout((): void => {
-        startSelection(syntheticEvent);
+        startSelection(syntheticEvent);        
       }, getSettings().selectionTimeOut);
     };
 
@@ -77,7 +77,7 @@ const setupSelection = (): void => {
     content.addEventListener('touchstart', (ev): void => {
       avoidSnapChange = true;
       const event = ev as TouchEvent;
-      const syntheticEvent = fromTouchEvent(event);
+      const syntheticEvent = fromTouchEvent(event);      
       if (event.touches.length === 1) {
         onSelectionStart(syntheticEvent);
       }
@@ -85,7 +85,7 @@ const setupSelection = (): void => {
 
     content.addEventListener('touchmove', clearSelectionTimeOut);
 
-    content.addEventListener('touchend', (): void => {
+    content.addEventListener('touchend', (): void => {      
       clearSelectionTimeOut();
       setTimeout((): void => {
         avoidSnapChange = false;
