@@ -32,7 +32,7 @@ const onWindowLoad = (): void => {
         }
       } else {
         updateSettings({ readMode: !getSettings().readMode });
-        if (domUI.zoomPanel && domUI.buttonsPanel) {
+        if (domUI.zoomPanel) {
           if (!getSettings().verticalScroll) {
             updateSettings({ animateEnabled: false });
             document.documentElement.style.setProperty(
@@ -59,9 +59,11 @@ const onWindowLoad = (): void => {
               getSettings().readMode ? ' zoom' : ''
             }`;
           }
-          domUI.buttonsPanel.className = `buttons${
-            getSettings().readMode ? ' zoom' : ''
-          }`;
+          if (domUI.buttonsPanel) {
+            domUI.buttonsPanel.className = `buttons${
+              getSettings().readMode ? ' zoom' : ''
+            }`;
+          }
         }
       }
     }

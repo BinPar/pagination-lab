@@ -23,7 +23,7 @@ const selectWordFromPoint = (ev: SyntheticEvent, word = true): Range | null => {
     chapterWrapper.style.webkitUserSelect = 'auto';
     const range = getRangeFromPoint(ev);
     const selection = window.getSelection();
-    if (selection) {
+    if (selection && range) {
       selection.removeAllRanges();
       selection.addRange(range);
 

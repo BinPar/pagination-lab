@@ -1,7 +1,7 @@
 import { getSettings, updateSettings } from './settings';
-import recalculateColumnConfig from './recalculateColumnConfig';
 import getDomUI from './getDomUI';
 import updateFontInfo from './updateFontInfo';
+import { setVerticalMode, setNightMode } from './globalFunctions';
 
 /**
  * Setups all the buttons actions
@@ -15,48 +15,10 @@ const setupButtonsEvents = (): void => {
   domUI.verticalScrollButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    updateSettings({ verticalScroll: !getSettings().verticalScroll });
-    document.body.className = `viewer epub ${getSettings().currentFont}${
-      getSettings().verticalScroll ? ' vertical' : ''
-      }`;
-    if (getSettings().verticalScroll) {
-      document.documentElement.style.setProperty('--animationSpeed', `0s`);
-      document.documentElement.style.overflowY = 'auto';
-      document.documentElement.style.overflowX = 'none';
-      document.documentElement.scrollTo(0, 0);
-      document.body.scrollTo(0, 0);
-      setTimeout((): void => {
-        const pageIndicator = document.body.querySelector(
-          `body > .zoomPanel > .chapterWrapper [data-page="${getSettings().currentPage}"]`,
-        );
-        if (pageIndicator) {
-          document.documentElement.scrollTo(
-            0,
-            pageIndicator.getBoundingClientRect().top,
-          );
-        }
-        recalculateColumnConfig(true);
-      }, 0);
-    } else {
-      document.documentElement.scrollTo(0, 0);
-      document.body.scrollTo(0, 0);
-      document.documentElement.style.setProperty('--animationSpeed', `0.5s`);
-      document.documentElement.style.overflowY = 'hidden';
-      document.documentElement.style.overflowX = 'hidden';
-      recalculateColumnConfig(true);
-      updateSettings({ readMode: true });
-      if (domUI.zoomPanel && domUI.buttonsPanel) {
-        document.documentElement.style.setProperty('--viewerSnapType', `none`);
-        const scrollFix = (document.body.scrollLeft * -1) / 3;
-        updateSettings({ scrollFix, animateEnabled: false });
-        document.documentElement.style.setProperty(
-          '--horizontalScrollFix',
-          `${getSettings().scrollFix}px`,
-        );
-        updateSettings({ handleZoomAnimation: true });
-        domUI.zoomPanel.className = `zoomPanel${getSettings().readMode ? ' zoom' : ''}`;
-        domUI.buttonsPanel.className = `buttons${getSettings().readMode ? ' zoom' : ''}`;
-      }
+    setVerticalMode(!getSettings().verticalScroll);
+    if (domUI.zoomPanel && domUI.buttonsPanel) {      
+      domUI.zoomPanel.className = `zoomPanel${getSettings().readMode ? ' zoom' : ''}`;
+      domUI.buttonsPanel.className = `buttons${getSettings().readMode ? ' zoom' : ''}`;
     }
   });
 
@@ -79,15 +41,7 @@ const setupButtonsEvents = (): void => {
   domUI.nightModeButton?.addEventListener('click', (ev: Event): void => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (!getSettings().handleZoomAnimation) {
-      let { invertViewerColor } = getSettings();
-      invertViewerColor = !invertViewerColor;
-      updateSettings({ invertViewerColor });
-      document.documentElement.style.setProperty(
-        '--invertViewerColor',
-        `${invertViewerColor ? 1 : 0}`,
-      );
-    }
+    setNightMode(!getSettings().invertViewerColor);
   });
 
   /**
