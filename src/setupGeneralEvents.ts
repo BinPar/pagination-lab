@@ -1,5 +1,7 @@
 import { getSettings, updateSettings } from './settings';
 import getDomUI from './getDomUI';
+import { PageChangeEvent } from './model/Events';
+import notifyEventToReact from './notifyEventToReact';
 
  const setupGeneralEvents = (): void => {
   const domUI = getDomUI();
@@ -18,6 +20,12 @@ import getDomUI from './getDomUI';
       
       if (domUI.pageNumberBtn) {
         domUI.pageNumberBtn.innerText = getSettings().currentPage;
+      } else {
+        const pageChangeEvent: PageChangeEvent = {
+          type: 'onPageChange',
+          pageNumber: getSettings().currentPage,
+        };
+        notifyEventToReact(pageChangeEvent);
       }
     } else if (getSettings().animateEnabled) {
       const { scrollTop } = document.scrollingElement || document.body;
@@ -26,6 +34,12 @@ import getDomUI from './getDomUI';
         getSettings().currentPage = currentMarker.page;
         if (domUI.pageNumberBtn) {
           domUI.pageNumberBtn.innerText = getSettings().currentPage;
+        } else {
+          const pageChangeEvent: PageChangeEvent = {
+            type: 'onPageChange',
+            pageNumber: getSettings().currentPage,
+          };
+          notifyEventToReact(pageChangeEvent);
         }
       }
     } else {
