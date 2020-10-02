@@ -3,7 +3,7 @@ import getDomUI from './getDomUI';
 import { PageChangeEvent } from './model/Events';
 import notifyEventToReact from './notifyEventToReact';
 
- const setupGeneralEvents = (): void => {
+const setupGeneralEvents = (): void => {
   const domUI = getDomUI();
   const onBodyScroll = (ev: Event): void => {
     if (getSettings().animateEnabled && !getSettings().verticalScroll) {
@@ -15,22 +15,26 @@ import notifyEventToReact from './notifyEventToReact';
         (document.body.scrollLeft - getSettings().scrollFix) / columnWidth,
       );
       if (currentColumn < getSettings().pagesPerColumn.length) {
-        updateSettings({ currentPage: getSettings().pagesPerColumn[currentColumn] });
-      }
-      
-      if (domUI.pageNumberBtn) {
-        domUI.pageNumberBtn.innerText = getSettings().currentPage;
-      } else {
-        const pageChangeEvent: PageChangeEvent = {
-          type: 'onPageChange',
-          pageNumber: getSettings().currentPage,
-        };
-        notifyEventToReact(pageChangeEvent);
+        const newCurrentPage = getSettings().pagesPerColumn[currentColumn];
+        if (newCurrentPage && getSettings().currentPage !== newCurrentPage) {
+          updateSettings({ currentPage: newCurrentPage });
+          if (domUI.pageNumberBtn) {
+            domUI.pageNumberBtn.innerText = getSettings().currentPage;
+          } else {
+            const pageChangeEvent: PageChangeEvent = {
+              type: 'onPageChange',
+              pageNumber: getSettings().currentPage,
+            };
+            notifyEventToReact(pageChangeEvent);
+          }
+        }
       }
     } else if (getSettings().animateEnabled) {
       const { scrollTop } = document.scrollingElement || document.body;
-      const currentMarker = getSettings().verticalPageMarkers.find((item): boolean => scrollTop <= item.top);
-      if (currentMarker) {
+      const currentMarker = getSettings().verticalPageMarkers.find(
+        (item): boolean => scrollTop <= item.top,
+      );
+      if (currentMarker && getSettings().currentPage !== currentMarker.page) {
         getSettings().currentPage = currentMarker.page;
         if (domUI.pageNumberBtn) {
           domUI.pageNumberBtn.innerText = getSettings().currentPage;
@@ -71,6 +75,6 @@ import notifyEventToReact from './notifyEventToReact';
 
   document.body.addEventListener('scroll', onBodyScroll);
   document.addEventListener('scroll', onBodyScroll);
-}
+};
 
 export default setupGeneralEvents;
